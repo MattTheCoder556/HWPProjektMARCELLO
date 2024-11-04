@@ -1,0 +1,8 @@
+https://calendar.google.com/calendar/u/0/r/eventedit?text=Meeting+with+Team&dates=20241120T140000Z/20241120T150000Z&location=Subotica+Tech&details=Discuss+project+milestones
+
+Ez a link alapján tudunk majd eventet hozzáadni a google calendar-hoz.
+A link stringjét majd kódon belül tudjuk változtatni.
+text - event neve
+dates - mettől, meddig
+location - hol
+details - leírás az eventről
