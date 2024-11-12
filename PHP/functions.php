@@ -1,9 +1,11 @@
 <?php
-require_once( "config.php" );
-function registerUser() {
+require_once("config.php");
+function registerUser()
+{
 
 }
 
-function loginUser() {
+function loginUser()
+{
 
 }

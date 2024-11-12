@@ -40,6 +40,12 @@
 					<li class="nav-item">
 						<a class="nav-link" href="/contact">Contact</a>
 					</li>
+                    <li>
+                        <button onclick="window.location.href='register.php'">Register</button>
+                    </li>
+                    <li>
+                        <button onclick="window.location.href='login.php'">Login</button>
+                    </li>
 				</ul>
 			</div>
 		</div>
