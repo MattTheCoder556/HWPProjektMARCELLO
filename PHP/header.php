@@ -41,10 +41,11 @@
 						<a class="nav-link" href="/contact">Contact</a>
 					</li>
                     <li>
-                        <button onclick="window.location.href='register.php'">Register</button>
+                        <button onclick="window.location.href='register.php'" class="btn btn-secondary">Register</button>
                     </li>
+					<li>""</li>
                     <li>
-                        <button onclick="window.location.href='login.php'">Login</button>
+                        <button onclick="window.location.href='login.php'" class="btn btn-secondary">Login</button>
                     </li>
 				</ul>
 			</div>

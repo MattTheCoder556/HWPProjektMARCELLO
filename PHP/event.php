@@ -8,7 +8,11 @@
     <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/event.css'>
 </head>
 <body>
-    <?php include "header.php"; ?>
+    <?php
+    session_start();
+    
+    include "header.php"; 
+    ?>
     <div class="form">
     <h1 class="mainTitle">Plan your event!</h1>
     <form action="handler.php" method="post" enctype="multipart/form-data">
@@ -16,16 +20,37 @@
         <br>
         <input type="file" name="photo" id="img" accept="image/png, image/jpeg" onchange="previewImage(event)">
         <img id="imgPreview" alt="Image Preview">
+        <?php
+         // Start the session
+        if (isset($_SESSION['message'])) {
+            echo $_SESSION['message'];
+            unset($_SESSION['message']); // Clear the session data if needed
+        }
+    ?>
         <br><br>
 
         <label for="title" class="title">Name of your event:</label>
         <br>
         <input type="text" name="title" id="tit">
+        <?php
+         // Start the session
+        if (isset($_SESSION['message2'])) {
+            echo $_SESSION['message2'];
+            unset($_SESSION['message2']); // Clear the session data if needed
+        }
+    ?>
         <br><br>
 
         <label for="number" class="number">Number of attendees:</label>
         <br>
         <input type="number" name="number" id="num" max="1000" min="0">
+        <?php
+         // Start the session
+        if (isset($_SESSION['message3'])) {
+            echo $_SESSION['message3'];
+            unset($_SESSION['message3']); // Clear the session data if needed
+        }
+    ?>
         <br><br>
 
         <label for="type" class="type">Type of event:</label>
@@ -37,6 +62,13 @@
             <option value="birthday">Birthday</option>
             <option value="other">Other...</option>
         </select>
+        <?php
+         // Start the session
+        if (isset($_SESSION['message4'])) {
+            echo $_SESSION['message4'];
+            unset($_SESSION['message4']); // Clear the session data if needed
+        }
+    ?>
         <br><br>
 
         <!-- Label and input for "Other" option, initially hidden -->
