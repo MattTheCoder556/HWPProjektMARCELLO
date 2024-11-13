@@ -8,7 +8,6 @@ $dbPass = '';
 try
 {
 	$pdo = new PDO("mysql:host=" . $dbHost . ";dbname=" . $dbName, $dbUser, $dbPass);
-	echo "Connected successfully";
 }
 catch (PDOException $e)
 {
