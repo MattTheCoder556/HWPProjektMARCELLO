@@ -26,7 +26,7 @@
 						</a>
 						<div class="dropdown-menu" aria-labelledby="servicesDropdown" style="background-color: #2E2E3A;">
 							<a class="dropdown-item footer-link" href="event.php">Event maker</a>
-							<a class="dropdown-item footer-link" href="/top-hashtags">Top Hashtags</a>
+							<a class="dropdown-item footer-link" href="availableEvents.php">Available events</a>
 							<a class="dropdown-item footer-link" href="/photo-downloader">Photo/Video Downloader</a>
 							<a class="dropdown-item footer-link" href="/analyze-name">Analyze by Name</a>
 							<a class="dropdown-item footer-link" href="/search-profiles">Search Instagram Profiles</a>
