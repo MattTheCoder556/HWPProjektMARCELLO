@@ -1,3 +1,9 @@
+<?php
+require_once("config.php");
+require_once("functions.php");
+
+tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +15,6 @@
 </head>
 <body>
     <?php
-    session_start();
     
     include "header.php"; 
     ?>

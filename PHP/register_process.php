@@ -10,7 +10,7 @@ $password = $_POST['password'];
 
 if (empty($firstname) || empty($lastname) || empty($username) || empty($phone) || empty($password))
 {
-	redirectWithAlert("All fields are required.", $_POST);
+	redirectToRegister("All fields are required.", $_POST);
 }
 
 registerUser($firstname, $lastname, $username, $phone, $password, $dbHost, $dbName, $dbUser, $dbPass);

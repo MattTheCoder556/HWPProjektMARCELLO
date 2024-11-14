@@ -40,14 +40,25 @@
 					<li class="nav-item">
 						<a class="nav-link" href="/contact">Contact</a>
 					</li>
-                    <li>
-                        <button onclick="window.location.href='register.php'" class="btn btn-secondary">Register</button>
-                    </li>
-					<li>""</li>
-                    <li>
-                        <button onclick="window.location.href='login.php'" class="btn btn-secondary">Login</button>
-                    </li>
-				</ul>
+					<?php
+                    require_once "functions.php";
+                        if (!isset($_SESSION['username']) || !isset($_SESSION['session_token'])): ?>
+                            <!-- Display Register and Login buttons if the user is not logged in -->
+                            <li>
+                                <button onclick="window.location.href='register.php'" class="btn btn-secondary">Register</button>
+                            </li>
+                            <li>""</li>
+                            <li>
+                                <button onclick="window.location.href='login.php'" class="btn btn-success">Login</button>
+                            </li>
+                            <?php
+                            else: ?>
+                            <!-- Display Logout button if the user is logged in -->
+                            <li>
+                                <button onclick="window.location.href='logout.php'" class="btn btn-danger">Logout</button>
+                            </li>
+                    <?php endif; ?>
+                </ul>
 			</div>
 		</div>
 	</nav>
