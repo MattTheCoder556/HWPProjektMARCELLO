@@ -74,7 +74,7 @@ function registerUser( string $firstName, string $lastName, string $username, st
 		$stmt->execute();
 
 		echo "<script>
-        	alert('Registration successful! Please verify your email to activate your account. Token: $registration_token');
+        	alert('Registration successful! Please verify your email to activate your account.');
         	window.location.href = 'login.php';
     	</script>";
 
