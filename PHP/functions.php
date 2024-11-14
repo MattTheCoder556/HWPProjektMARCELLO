@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require '../vendor/autoload.php';
+
 function registerUser( string $firstName, string $lastName, string $username, string $phone, string $password, string $dbHost, string $dbName, string $dbUser, string $dbPass )
 {
 	// Character limits based on database
@@ -69,12 +74,12 @@ function registerUser( string $firstName, string $lastName, string $username, st
 		$stmt->execute();
 
 		echo "<script>
-        	alert('Registration successful! Please verify your email to activate your account.');
+        	alert('Registration successful! Please verify your email to activate your account. Token: $registration_token');
         	window.location.href = 'login.php';
     	</script>";
 
-		// OPTIONAL: Code to send a verification email can be added here.
-
+		// Verification email
+		sendVerificationEmail($username, $registration_token);
 	}
 	catch (PDOException $e)
 	{
@@ -97,4 +102,45 @@ function redirectWithAlert($message, $formData = [])
 	$_SESSION['formData'] = $formData;
 	header("Location: register.php");
 	exit();
+}
+
+function sendVerificationEmail($email, $token): void
+{
+	$mail = new PHPMailer(true);
+
+	try
+	{
+		$mail->isSMTP();
+		$mail->isSMTP();
+		$mail->Host = 'sandbox.smtp.mailtrap.io';
+		$mail->SMTPAuth = true;
+		$mail->Port = 2525;
+		$mail->Username = 'b9cb9fe9810051';
+		$mail->Password = '84d8a60019f0f2';
+
+		// Email sender and recipient
+		$mail->setFrom('mmmarcello@events.com', 'Marcello');
+		$mail->addAddress($email);
+
+		// Email content
+		$mail->isHTML(true);
+		$mail->Subject = 'Account Verification';
+		$verificationLink = "http://yourwebsite.com/verify.php?token=$token";
+		$mail->Body = "<h1>Account Verification</h1>
+                       <p>Click the link below to verify your account:</p>
+                       <a href='$verificationLink'>$verificationLink</a>
+                       <p>If you did not request this registration, please ignore this email.</p>";
+
+		$mail->AltBody = "Account Verification\n\n"
+		                 . "Please click the link below to verify your account:\n"
+		                 . "$verificationLink\n\n"
+		                 . "If you did not request this registration, please ignore this email.";
+
+		$mail->send();
+		echo 'Verification email has been sent.';
+	}
+	catch (Exception $e)
+	{
+		redirectWithAlert("Mailer Error: " . htmlspecialchars($mail->ErrorInfo, ENT_QUOTES));
+	}
 }
