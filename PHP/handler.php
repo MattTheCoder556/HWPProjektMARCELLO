@@ -1,18 +1,25 @@
 <?php
 session_start();
-//$photo = $_POST['photo'];
 $title = $_POST['title'];
 $number = $_POST['number'];
 $type = $_POST['type'];
 $other = $_POST['other'];
+$startDate = $_POST['startDate'];
+$endDate = $_POST['endDate'];
 $public = $_POST['public'];
+$eventCity = $_POST['eventCity'];
+$eventStreet = $_POST['eventStreet'];
+$eventHouse = $_POST['eventHouse'];
+$currentDate = date('Y-m-d');
+$eventAddress = $eventCity .', '. $eventStreet .', '. $eventHouse;
 
-var_dump( $title, $number, $type, $other, $public);
+var_dump( $title, $number, $type, $other, $public, $startDate, $endDate, $currentDate, $eventAddress);
+
+
 
 if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
     $photo = $_FILES['photo'];
     
-    // Check if the file is actually an image (optional)
     $fileType = mime_content_type($photo['tmp_name']);
     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
     
@@ -42,24 +49,16 @@ if(empty($type)){
     header("Location: event.php");
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $targetDir = "../assets/eventPictures/";
-
-    $fileName = basename($_FILES["photo"]["name"]);
-    $targetFilePath = $targetDir . $fileName;
-
-    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
-    $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
-
-    if (in_array($fileType, $allowedTypes)) {
-        if (move_uploaded_file($_FILES["photo"]["tmp_name"], $targetFilePath)) {
-            echo "The file " . htmlspecialchars($fileName) . " has been uploaded successfully.";
-        } else {
-            echo "Sorry, there was an error uploading your file.";
-        }
-    }
+if ($startDate < $currentDate) {
+    $_SESSION['message7'] = "The start date cannot be in the past.";
+    header("Location: event.php");
+    exit; 
 }
-else {
-    echo "No file uploaded.";
+
+if ($endDate < $startDate) {
+    $_SESSION['message8'] = "The end date cannot be before the start date.";
+    header("Location: event.php");
+    exit; 
 }
+
 ?>

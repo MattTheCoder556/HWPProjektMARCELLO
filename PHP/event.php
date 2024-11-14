@@ -3,7 +3,7 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Events</title>
+    <title>Plan your event</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/event.css'>
 </head>
@@ -21,10 +21,9 @@
         <input type="file" name="photo" id="img" accept="image/png, image/jpeg" onchange="previewImage(event)">
         <img id="imgPreview" alt="Image Preview">
         <?php
-         // Start the session
         if (isset($_SESSION['message'])) {
             echo $_SESSION['message'];
-            unset($_SESSION['message']); // Clear the session data if needed
+            unset($_SESSION['message']); 
         }
     ?>
         <br><br>
@@ -33,10 +32,9 @@
         <br>
         <input type="text" name="title" id="tit">
         <?php
-         // Start the session
         if (isset($_SESSION['message2'])) {
             echo $_SESSION['message2'];
-            unset($_SESSION['message2']); // Clear the session data if needed
+            unset($_SESSION['message2']); 
         }
     ?>
         <br><br>
@@ -45,12 +43,30 @@
         <br>
         <input type="number" name="number" id="num" max="1000" min="0">
         <?php
-         // Start the session
         if (isset($_SESSION['message3'])) {
             echo $_SESSION['message3'];
-            unset($_SESSION['message3']); // Clear the session data if needed
+            unset($_SESSION['message3']);
         }
     ?>
+        <br><br>
+
+        <div class="dates">
+        <label for="startDate">Event starts: </label>
+        <input type="date" name="startDate" id="sDate">
+        <br>
+        <label for="endDate">Event starts: </label>
+        <input type="date" name="endDate" id="eDate">
+        <br>
+        <?php
+        if (isset($_SESSION['message7'])) {
+            echo $_SESSION['message7'];
+            unset($_SESSION['message7']);
+        }elseif (isset($_SESSION['message8'])) {
+            echo $_SESSION['message8'];
+            unset($_SESSION['message8']);
+        }
+        ?>
+        </div>
         <br><br>
 
         <label for="type" class="type">Type of event:</label>
@@ -63,18 +79,27 @@
             <option value="other">Other...</option>
         </select>
         <?php
-         // Start the session
         if (isset($_SESSION['message4'])) {
             echo $_SESSION['message4'];
-            unset($_SESSION['message4']); // Clear the session data if needed
+            unset($_SESSION['message4']); 
         }
     ?>
         <br><br>
 
-        <!-- Label and input for "Other" option, initially hidden -->
         <label for="other" id="other_lbl" class="other">Please, enter the type of event:</label>
         <br>
         <input type="text" name="other" id="other_txt">
+        <br><br>
+
+        <label for="eventCity">Where is the event held: </label>
+        <input type="text" name="eventCity" id="city" placeholder="City name">
+        <input type="text" name="eventStreet" id="street" placeholder="Street name">
+        <input type="text" name="eventHouse" id="house" placeholder="House Number">
+        <br><br>
+
+        <label for="eventDesc">Write about the event: </label>
+        <br>
+        <textarea name="eventDesc" id="desc" cols="95" rows="8"></textarea>
 
         <br>
         <div class="chckboxDiv">
@@ -93,7 +118,6 @@
             const otherLabel = document.getElementById('other_lbl');
             const textInput = document.getElementById('other_txt');
 
-            // Show or hide the label and input based on the selected option
             if (dropdown.value === 'other') {
                 otherLabel.style.display = 'inline';
                 textInput.style.display = 'inline';
