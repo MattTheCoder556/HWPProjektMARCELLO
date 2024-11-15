@@ -1,7 +1,7 @@
 <?php
 
 $dbHost = 'localhost';
-$dbName = 'rendezveny_szervezes2';
+$dbName = 'marcello_v2';
 $dbUser = 'root';
 $dbPass = '';
 

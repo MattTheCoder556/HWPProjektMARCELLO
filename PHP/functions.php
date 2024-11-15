@@ -33,7 +33,7 @@ function registerUser( string $firstName, string $lastName, string $username, st
 
 	if (!preg_match('/^\d{1,3} \d{7,12}$/', $phone))
 	{
-		redirectToRegister("Please enter a valid phone number with format: (country code)[space](phone number), e.g., '123 1234567890'.", $_POST);
+		redirectToRegister("Please enter a valid phone number with format: (country code)[space](phone number), e.g.: 123 1234567890.", $_POST);
 	}
 
 	if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/', $password))
@@ -280,5 +280,63 @@ function tokenVerify(string $dbHost, string $dbName, string $dbUser, string $dbP
 	finally
 	{
 		$pdo = null;
+	}
+}
+
+function is_email_registered($email)
+{
+	global $pdo;
+
+	$stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = :email");
+	$stmt->execute(['email' => $email]);
+	return $stmt->fetchColumn() > 0;
+}
+
+function save_password_reset_token($email, $token)
+{
+	global $pdo;
+
+	$expires = date("Y-m-d H:i:s", strtotime("+1 hour"));
+
+	$stmt = $pdo->prepare("UPDATE users SET new_password_token = :token, new_password_token_expiry = :expires WHERE username = :email");
+	$stmt->execute([
+		'token' => $token,
+		'expires' => $expires,
+		'email' => $email
+	]);
+}
+
+function send_password_reset_email($email, $token)
+{
+	$mail = new PHPMailer(true);
+
+	try
+	{
+		// Gábor part
+		$mail->isSMTP();
+		$mail->Host = 'sandbox.smtp.mailtrap.io';
+		$mail->SMTPAuth = true;
+		$mail->Port = 2525;
+		$mail->Username = 'b9cb9fe9810051';
+		$mail->Password = '84d8a60019f0f2';
+
+		// Máté part
+
+
+		$mail->setFrom('mmmreset.noreply@gmail.com', 'MammaMiaMarcello');
+		$mail->addAddress($email);
+
+		$resetLink = "http://localhost:63342/index.php/PHP/reset_password.php?token=$token";
+		$mail->isHTML(true);
+		$mail->Subject = "Password Reset Request";
+		$mail->Body    = "Click on the following link to reset your password: <a href='$resetLink'>$resetLink</a>";
+		$mail->AltBody = "Click on the following link to reset your password: $resetLink";
+
+		$mail->send();
+		echo 'Password reset email sent.';
+	}
+	catch (Exception $e)
+	{
+		echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
 	}
 }

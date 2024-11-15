@@ -1,22 +1,74 @@
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #f0f0f0;
-}
-
-button {
-    margin: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
+    font-family: Arial, sans-serif !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    background-color: #2E2E3A !important;
 }
 
 form {
-    display: inline-block;
+    display: block;
     text-align: left;
-    margin-top: 20px;
+    background-color: #BBB8B2;
+    background-image: url("../pictures/logo.png");
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
 }
 
 label, input, button {
-    display: block;
+    display: inline-block;
+    width: 100%;
     margin: 10px 0;
+}
+
+button {
+    padding: 10px;
+    font-size: 16px;
+    max-width: 100px;
+}
+
+/* From Uiverse.io by Jedi-hongbin */
+#backButton {
+    display: flex;
+    height: 3em;
+    width: 100px;
+    align-items: center;
+    justify-content: center;
+    background-color: #eeeeee4b;
+    border-radius: 3px;
+    letter-spacing: 1px;
+    transition: all 0.2s linear;
+    cursor: pointer;
+    border: none;
+    background: #BBB8B2;
+    position: absolute;
+    top: 1em;
+    left: 1em;
+}
+
+#backButton > svg {
+    margin-right: 5px;
+    margin-left: 5px;
+    font-size: 20px;
+    transition: all 0.4s ease-in;
+}
+
+#backButton:hover > svg {
+    font-size: 1.2em;
+    transform: translateX(-5px);
+}
+
+#backButton:hover {
+    box-shadow: 9px 9px 33px #F34213, -9px -9px 33px #F34213;
+    transform: translateY(-2px);
+}
+
+.reg_log_button:hover {
+    box-shadow: 9px 9px 33px #BBB8B2, -9px -9px 33px #BBB8B2 !important;
+    border: 1px solid #BBB8B2 !important;
 }

@@ -45,11 +45,11 @@
                         if (!isset($_SESSION['username']) || !isset($_SESSION['session_token'])): ?>
                             <!-- Display Register and Login buttons if the user is not logged in -->
                             <li>
-                                <button onclick="window.location.href='register.php'" class="btn btn-secondary">Register</button>
+                                <button onclick="window.location.href='register.php'" class="btn" id="reg_button" style="background-color: #BC5D2E">Register</button>
                             </li>
-                            <li>""</li>
+                        <li style="visibility: hidden">""</li>
                             <li>
-                                <button onclick="window.location.href='login.php'" class="btn btn-success">Login</button>
+                                <button onclick="window.location.href='login.php'" class="btn" id="log_button" style="background-color: #DE9151">Login</button>
                             </li>
                             <?php
                             else: ?>
@@ -82,5 +82,13 @@
     .dropdown-item.footer-link:hover {
         color: #DE9151 !important;
         background-color: transparent;
+    }
+    #reg_button:hover {
+        box-shadow: 9px 9px 33px #BBB8B2, -9px -9px 33px #BBB8B2 !important;
+        border: 1px solid #BBB8B2 !important;
+    }
+    #log_button:hover {
+        box-shadow: 9px 9px 33px #BBB8B2, -9px -9px 33px #BBB8B2 !important;
+        border: 1px solid #BBB8B2 !important;
     }
 </style>
