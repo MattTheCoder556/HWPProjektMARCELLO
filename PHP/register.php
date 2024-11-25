@@ -64,6 +64,10 @@ unset($_SESSION['error'], $_SESSION['formData']);
     </div>
 
     <button type="submit" class="btn btn-block reg_log_button" style="background-color: #F34213;">Register</button>
+    <div class="text-left mt-3">
+        Already have an account?
+        <a href="login.php" class="text-white" style="background: #BC5D2E; padding: 0.5em; border-radius: 4px;">Login!</a>
+    </div>
 </form>
 
 </body>

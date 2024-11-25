@@ -57,10 +57,10 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 
         <div class="dates">
         <label for="startDate">Event starts: </label>
-        <input type="date" name="startDate" id="sDate">
+        <input type="datetime-local" name="startDate" id="sDate">
         <br>
         <label for="endDate">Event starts: </label>
-        <input type="date" name="endDate" id="eDate">
+        <input type="datetime-local" name="endDate" id="eDate">
         <br>
         <?php
         if (isset($_SESSION['message7'])) {
@@ -78,9 +78,9 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
         <br>
         <select name="type" id="typ" onchange="showInput()">
             <option value="" disabled selected hidden>-- Select an option --</option>
-            <option value="concert">Concert</option>
-            <option value="wedding">Wedding</option>
-            <option value="birthday">Birthday</option>
+            <option value="Concert">Concert</option>
+            <option value="Wedding">Wedding</option>
+            <option value="Birthday">Birthday</option>
             <option value="other">Other...</option>
         </select>
         <?php

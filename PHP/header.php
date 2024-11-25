@@ -25,7 +25,13 @@
 							Sites
 						</a>
 						<div class="dropdown-menu" aria-labelledby="servicesDropdown" style="background-color: #2E2E3A;">
-							<a class="dropdown-item footer-link" href="event.php">Event maker</a>
+							<?php
+							require_once 'functions.php';
+
+							if(isset($_SESSION['username']) || isset($_SESSION['session_token'])){
+							echo '<a class="dropdown-item footer-link" href="event.php">Event maker</a>';
+							}
+							?>
 							<a class="dropdown-item footer-link" href="availableEvents.php">Available events</a>
 							<a class="dropdown-item footer-link" href="/photo-downloader">Photo/Video Downloader</a>
 							<a class="dropdown-item footer-link" href="/analyze-name">Analyze by Name</a>

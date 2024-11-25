@@ -44,6 +44,11 @@ unset($_SESSION['error'], $_SESSION['formData']);
     <div class="text-center mt-3">
         <a href="forgot_password.php" class="text-white" style="background: #BC5D2E; padding: 0.5em; border-radius: 4px;">Forgot Password?</a>
     </div>
+    <br>
+    <div class="text-center mt-3">
+        <p>No account yet?</p>
+        <a href="register.php" class="text-white" style="background: #BC5D2E; padding: 0.5em; border-radius: 4px;">Register!</a>
+    </div>
 </form>
 </body>
 </html>

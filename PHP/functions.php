@@ -186,15 +186,20 @@ function sendVerificationEmail($email, $token): void
 	try
 	{
 		// Gábor part
-		$mail->isSMTP();
+		/*$mail->isSMTP();
 		$mail->Host = 'sandbox.smtp.mailtrap.io';
 		$mail->SMTPAuth = true;
 		$mail->Port = 2525;
 		$mail->Username = 'b9cb9fe9810051';
-		$mail->Password = '84d8a60019f0f2';
+		$mail->Password = '84d8a60019f0f2';*/
 
 		// Máté part
-
+		$mail->isSMTP();
+		$mail->Host = 'sandbox.smtp.mailtrap.io';
+		$mail->SMTPAuth = true;
+		$mail->Port = 2525;
+		$mail->Username = 'd4a04c8e5deb9e';
+		$mail->Password = 'bde0a6f4e281eb';
 
 		// Email sender and recipient
 		$mail->setFrom('mmmarcello@events.com', 'Marcello');
@@ -203,7 +208,7 @@ function sendVerificationEmail($email, $token): void
 		// Email content
 		$mail->isHTML(true);
 		$mail->Subject = 'Account Verification';
-		$verificationLink = "http://localhost:63342/index.php/PHP/verifyUser.php?token=$token";
+		$verificationLink = "http://localhost/index.php/PHP/verifyUser.php?token=$token";
 		$mail->Body = "<h1>Account Verification</h1>
                        <p>Click the link below to verify your account:</p>
                        <a href='$verificationLink'>Verify me!</a>
@@ -313,15 +318,20 @@ function send_password_reset_email($email, $token)
 	try
 	{
 		// Gábor part
-		$mail->isSMTP();
+		/*$mail->isSMTP();
 		$mail->Host = 'sandbox.smtp.mailtrap.io';
 		$mail->SMTPAuth = true;
 		$mail->Port = 2525;
 		$mail->Username = 'b9cb9fe9810051';
-		$mail->Password = '84d8a60019f0f2';
+		$mail->Password = '84d8a60019f0f2';*/
 
 		// Máté part
-
+		$mail->isSMTP();
+		$mail->Host = 'sandbox.smtp.mailtrap.io';
+		$mail->SMTPAuth = true;
+		$mail->Port = 2525;
+		$mail->Username = 'd4a04c8e5deb9e';
+		$mail->Password = 'bde0a6f4e281eb';
 
 		$mail->setFrom('mmmreset.noreply@gmail.com', 'MammaMiaMarcello');
 		$mail->addAddress($email);
