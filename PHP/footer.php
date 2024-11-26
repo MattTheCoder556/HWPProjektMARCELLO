@@ -1,4 +1,13 @@
 <!-- footer.php -->
+<?php
+require __DIR__ . "/../vendor/autoload.php";
+use Detection\MobileDetect;
+$detect = new MobileDetect();
+
+$ios_link = "https://apps.apple.com/app/idYOUR_APP_ID";
+$android_link = "https://play.google.com/store/apps/details?id=YOUR_APP_PACKAGE";
+
+?>
 <footer class="py-5" style="background-color: #2E2E3A; color: #BBB8B2;">
     <div class="container">
         <div class="row text-center text-md-start align-items-start">
@@ -46,6 +55,27 @@
             </div>
         </div>
 
+        <!-- Download Buttons -->
+        <div class="row text-center mt-4">
+		    <?php if ($detect->isiOS()): ?>
+                <div class="col-12">
+                    <a href="<?php echo $ios_link; ?>" class="btn btn-primary" style="background-color: #007AFF; border-color: #007AFF;">
+                        <i class="fa fa-apple"></i> Download on the App Store
+                    </a>
+                </div>
+		    <?php elseif ($detect->isAndroidOS()): ?>
+                <div class="col-12">
+                    <a href="<?php echo $android_link; ?>" class="btn btn-success" style="background-color: #3DDC84; border-color: #3DDC84;">
+                        <i class="fa fa-android"></i> Get it on Google Play
+                    </a>
+                </div>
+		    <?php else: ?>
+                <div class="col-12">
+                    <p class="text-muted">Download our app on iOS or Android devices too!</p>
+                </div>
+		    <?php endif; ?>
+        </div>
+        
         <!-- Divider and Bottom Section -->
         <hr class="my-4" style="border-color: #BBB8B2;">
         <div class="text-center">
@@ -59,6 +89,7 @@
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <style>
     .footer-link {
         color: #BBB8B2;
