@@ -4,7 +4,7 @@ session_start();
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require '../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 function registerUser( string $firstName, string $lastName, string $username, string $phone, string $password, string $dbHost, string $dbName, string $dbUser, string $dbPass )
 {
@@ -145,7 +145,7 @@ function loginUser(string $username, string $password, string $dbHost, string $d
 				$_SESSION['username'] = $username;
 				$_SESSION['session_token'] = $sessionToken;
 
-				header('Location: event.php');
+				header('Location: logged_in_sites/eventMaker.php');
 				exit();
 			}
 			else

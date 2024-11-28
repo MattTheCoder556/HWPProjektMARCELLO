@@ -1,6 +1,6 @@
 <!-- footer.php -->
 <?php
-require __DIR__ . "/../vendor/autoload.php";
+require __DIR__ . "/../../vendor/autoload.php";
 use Detection\MobileDetect;
 $detect = new MobileDetect();
 
@@ -13,7 +13,7 @@ $android_link = "https://play.google.com/store/apps/details?id=YOUR_APP_PACKAGE"
         <div class="row text-center text-md-start align-items-start">
             <!-- Logo -->
             <div class="col-sm col-md-3 mb-4 text-center text-md-start">
-                <a href="index.php" target="_self" aria-description="Link to indexpage"><img src="../assets/pictures/logo.png" alt="Logo" class="mb-2" style="max-width: 120px;"></a>
+                <a href="../index.php" target="_self" aria-description="Link to indexpage"><img src="../../assets/pictures/logo.png" alt="Logo" class="mb-2" style="max-width: 120px;"></a>
             </div>
 
             <!-- Company, Services, and Legal Columns in a Row -->
@@ -35,11 +35,11 @@ $android_link = "https://play.google.com/store/apps/details?id=YOUR_APP_PACKAGE"
                             <?php
                                 if(isset($_SESSION['username']) && isset($_SESSION['session_token']))
                                 {
-                                    echo '<li><a href="logged_in_sites/eventMaker.php" class="footer-link">Event maker</a></li>';
-                                    echo '<li><a href="logged_in_sites/profileMain.php" class="footer-link">Profile</a></li>';
+                                    echo '<li><a href="eventMaker.php" class="footer-link">Event maker</a></li>';
+                                    echo '<li><a href="profileMain.php" class="footer-link">Profile</a></li>';
                                 }
                             ?>
-                            <li><a href="/photo-downloader" class="footer-link">Photo/Video Downloader</a></li>
+                            <li><a class="dropdown-item footer-link" href="../availableEvents.php">Available events</a></li>
                             <li><a href="/analyze-name" class="footer-link">Analyze by Name</a></li>
                             <li><a href="/search-profiles" class="footer-link">Search Instagram Profiles</a></li>
                         </ul>

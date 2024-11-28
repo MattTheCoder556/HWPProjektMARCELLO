@@ -2,8 +2,8 @@
 	<nav class="navbar navbar-expand-md navbar-dark" style="background-color: #2E2E3A;">
 		<div class="container">
 			<!-- Logo and Brand Name -->
-			<a class="navbar-brand" href="index.php" aria-description="Link to homepage">
-				<img src="../assets/pictures/logo.png" alt="Logo" style="max-width: 50px;" class="mr-2">
+			<a class="navbar-brand" href="../index.php" aria-description="Link to homepage">
+				<img src="../../assets/pictures/logo.png" alt="Logo" style="max-width: 50px;" class="mr-2">
 				<span style="color: #DE9151;">MammaMia Marcello</span>
 			</a>
 
@@ -17,7 +17,7 @@
 				<ul class="navbar-nav ml-auto">
 					<!-- Home -->
 					<li class="nav-item">
-						<a class="nav-link" href="index.php">Home</a>
+						<a class="nav-link" href="../index.php">Home</a>
 					</li>
 					<!-- Services Dropdown -->
 					<li class="nav-item dropdown">
@@ -26,15 +26,15 @@
 						</a>
 						<div class="dropdown-menu" aria-labelledby="servicesDropdown" style="background-color: #2E2E3A;">
 							<?php
-							require_once 'functions.php';
+							require_once '../functions.php';
 
 							if(isset($_SESSION['username']) && isset($_SESSION['session_token']))
                             {
-							    echo '<a class="dropdown-item footer-link" href="logged_in_sites/eventMaker.php">Event maker</a>';
-							    echo '<a class="dropdown-item footer-link" href="logged_in_sites/profileMain.php">Profile</a>';
+							    echo '<a class="dropdown-item footer-link" href="eventMaker.php">Event maker</a>';
+							    echo '<a class="dropdown-item footer-link" href="profileMain.php">Profile</a>';
 							}
 							?>
-                            <a class="dropdown-item footer-link" href="availableEvents.php">Available events</a>
+                            <a class="dropdown-item footer-link" href="../availableEvents.php">Available events</a>
 							<a class="dropdown-item footer-link" href="/analyze-name">Analyze by Name</a>
 							<a class="dropdown-item footer-link" href="/search-profiles">Search Instagram Profiles</a>
 						</div>
@@ -48,7 +48,7 @@
 						<a class="nav-link" href="/contact">Contact</a>
 					</li>
 					<?php
-                    require_once "functions.php";
+                    require_once "../functions.php";
                         if (!isset($_SESSION['username']) || !isset($_SESSION['session_token'])): ?>
                             <!-- Display Register and Login buttons if the user is not logged in -->
                             <li>
@@ -62,7 +62,7 @@
                             else: ?>
                             <!-- Display Logout button if the user is logged in -->
                             <li>
-                                <button onclick="window.location.href='logged_in_sites/logout.php'" class="btn btn-danger">Logout</button>
+                                <button onclick="window.location.href='logout.php'" class="btn btn-danger">Logout</button>
                             </li>
                     <?php endif; ?>
                 </ul>

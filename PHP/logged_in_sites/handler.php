@@ -1,8 +1,8 @@
 <?php
 //session_start();
 
-require 'config.php';
-require 'functions.php';
+require '../config.php';
+require '../functions.php';
 
 /*if (!isset($_SESSION['user_id'])) {
     $_SESSION['message'] = "You must be logged in to create an event.";
@@ -39,7 +39,7 @@ if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
     
     if (!in_array($fileType, $allowedTypes)) {
         $_SESSION['message'] = "Please upload a valid image file (JPG, PNG, or GIF).";
-        header("Location: event.php");
+        header("Location: eventMaker.php");
         exit;
     }
     $targetDir = "uploads/";
@@ -60,34 +60,34 @@ if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
     }
 } else {
     $_SESSION['message'] = "Please insert a picture of your event.";
-    header("Location: event.php");
+    header("Location: eventMaker.php");
     exit;
 }
 
 if(empty($title)){
     $_SESSION['message2'] = "Please write the name/title of your event.";
-    header("Location: event.php");
+    header("Location: eventMaker.php");
 }
 
 if(empty($number)){
     $_SESSION['message3'] = "Please give the number of attendees.";
-    header("Location: event.php");
+    header("Location: eventMaker.php");
 }
 
 if(empty($type)){
     $_SESSION['message4'] = "Please give the type of your event.";
-    header("Location: event.php");
+    header("Location: eventMaker.php");
 }
 
 if ($startDate < $currentDate) {
     $_SESSION['message7'] = "The start date cannot be in the past.";
-    header("Location: event.php");
+    header("Location: eventMaker.php");
     exit; 
 }
 
 if ($endDate < $startDate) {
     $_SESSION['message8'] = "The end date cannot be before the start date.";
-    header("Location: event.php");
+    header("Location: eventMaker.php");
     exit; 
 }
 

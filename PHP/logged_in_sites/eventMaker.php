@@ -1,6 +1,6 @@
 <?php
-require_once("config.php");
-require_once("functions.php");
+require_once( "../config.php" );
+require_once( "../functions.php" );
 
 tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 ?>
@@ -11,12 +11,12 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Plan your event</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/event.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='../../assets/css/event.css'>
 </head>
 <body>
     <?php
     
-    include "header.php"; 
+    include "logged_header.php";
     ?>
     <div class="form">
     <h1 class="mainTitle">Plan your event!</h1>
@@ -148,7 +148,7 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
     </script>
     </div>
     <?php
-        include 'footer.php';
+        include 'logged_footer.php';
     ?>
 </body>
 </html>
