@@ -56,7 +56,7 @@ include 'header.php';
         <div class="event-item">
             <h2><?= htmlspecialchars($event['event_name']) ?></h2>
             <div class="event_pic">
-            <img src="<?= htmlspecialchars($event['event_pic']) ?>" alt="Event Image" style="width: 200px; height: auto;">
+            <img src="logged_in_sites/<?= htmlspecialchars($event['event_pic']) ?>" alt="Event Image" style="width: 200px; height: auto;">
             </div>
             <p><strong>Type:</strong> <?= htmlspecialchars($event['event_type']) ?></p>
             <p><strong>Description:</strong> <?= htmlspecialchars($event['description']) ?></p>

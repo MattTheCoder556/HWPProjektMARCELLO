@@ -55,7 +55,7 @@ if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
         $imagePath = $targetFilePath;
     } else {
         $_SESSION['message'] = "Failed to upload image.";
-        header("Location: index.php");
+        header("Location: ../index.php");
         exit;
     }
 } else {
@@ -123,7 +123,7 @@ try {
     ]);
 
     $_SESSION['message'] = "Event created successfully!";
-    header('Location: availableEvents.php');
+    header('Location: ../availableEvents.php');
     echo 'Successfully uploaded!';
 } catch (PDOException $e) {
     // Catch any PDO errors and show them

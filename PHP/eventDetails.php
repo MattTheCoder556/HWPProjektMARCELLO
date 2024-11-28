@@ -37,15 +37,21 @@ try {
 <head>
     <meta charset="utf-8">
     <title>Event Details</title>
+    <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/eventDetails.css'>
 </head>
 <body>
-    <h1><?= htmlspecialchars($event['event_name']) ?></h1>
-    <p><strong>Type:</strong> <?= htmlspecialchars($event['event_type']) ?></p>
-    <p><strong>Description:</strong> <?= htmlspecialchars($event['description']) ?></p>
-    <p><strong>Start Date:</strong> <?= htmlspecialchars($event['start_date']) ?></p>
-    <p><strong>End Date:</strong> <?= htmlspecialchars($event['end_date']) ?></p>
-    <p><strong>Location:</strong> <?= htmlspecialchars($event['place']) ?></p>
-    <img src="<?= htmlspecialchars($event['event_pic']) ?>" alt="Event Image" style="width: 400px; height: auto;">
+    <div class="eventDesc">
+        <h1><?= htmlspecialchars($event['event_name']) ?></h1>
+        <br><br><br>
+        <div class="eventPic">
+            <img src="logged_in_sites/<?= htmlspecialchars($event['event_pic']) ?>" alt="Event Image" style="max-width: 400px; max-height: auto;">
+        </div>
+        <p><strong>Type:</strong> <?= htmlspecialchars($event['event_type']) ?></p>
+        <p><strong>Description:</strong> <?= htmlspecialchars($event['description']) ?></p>
+        <p><strong>Start Date:</strong> <?= htmlspecialchars($event['start_date']) ?></p>
+        <p><strong>End Date:</strong> <?= htmlspecialchars($event['end_date']) ?></p>
+        <p><strong>Location:</strong> <?= htmlspecialchars($event['place']) ?></p>
+    </div>
 </body>
 </html>
 
