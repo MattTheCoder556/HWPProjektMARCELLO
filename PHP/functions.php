@@ -117,7 +117,7 @@ function loginUser(string $username, string $password, string $dbHost, string $d
 
 		if (!$result)
 		{
-			redirectToLogin("This username (email) is not registered.", $_POST);
+			redirectToLogin("This username (email) is not registered.", $_POST,1);
 			exit();
 		}
 		else
@@ -125,7 +125,7 @@ function loginUser(string $username, string $password, string $dbHost, string $d
 			// Check if the account is verified
 			if ($result['is_verified'] == 0)
 			{
-				redirectToLogin("This username (email) is registered but not yet verified.", $_POST);
+				redirectToLogin("This username (email) is registered but not yet verified.", $_POST,1);
 			}
 			if (password_verify($password, $result['password']))
 			{
@@ -150,7 +150,7 @@ function loginUser(string $username, string $password, string $dbHost, string $d
 			}
 			else
 			{
-				redirectToLogin("The password is incorrect. Please try again.", $_POST);
+				redirectToLogin("The password is incorrect. Please try again.", $_POST,1);
 			}
 		}
 	}
@@ -171,12 +171,20 @@ function redirectToRegister($message, $formData = [])
 	header("Location: register.php");
 	exit();
 }
-function redirectToLogin($message, $formData = [])
+function redirectToLogin($message, $formData = [], $logged)
 {
 	$_SESSION['error'] = $message;
 	$_SESSION['formData'] = $formData;
-	header("Location: login.php");
-	exit();
+    if($logged == 1)
+    {
+        header("Location: ../login.php");
+        exit();
+    }
+    else
+    {
+        header("Location: login.php");
+        exit();
+    }
 }
 
 function sendVerificationEmail($email, $token): void
@@ -234,7 +242,7 @@ function tokenVerify(string $dbHost, string $dbName, string $dbUser, string $dbP
 	if (!isset($_SESSION['username']) || !isset($_SESSION['session_token']))
 	{
 		// Missing session details; redirect to login page with a message
-		redirectToLogin("Please register/log in to access this page.");
+		redirectToLogin("Please log in, to access this page.",null,1);
 		exit();
 	}
 
@@ -260,7 +268,7 @@ function tokenVerify(string $dbHost, string $dbName, string $dbUser, string $dbP
 		if (!$result)
 		{
 			// Invalid token; redirect to login page
-			redirectToLogin("Invalid attempt! Please log in again.",null);
+			redirectToLogin("Invalid attempt! Please log in again.",null,1);
 			exit();
 		}
 
@@ -270,7 +278,7 @@ function tokenVerify(string $dbHost, string $dbName, string $dbUser, string $dbP
 			// Token is expired; remove session and redirect
 			session_unset();
 			session_destroy();
-			redirectToLogin("Your session has expired! Please log in again.",null);
+			redirectToLogin("Your session has expired! Please log in again.",null,1);
 			exit();
 		}
 

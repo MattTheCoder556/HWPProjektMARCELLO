@@ -7,7 +7,7 @@ $password = $_POST['password'];
 
 if (empty($username) || empty($password))
 {
-	redirectToLogin("Both fields are required to login.", $_POST);
+	redirectToLogin("Both fields are required to login.", $_POST,0);
 }
 
 loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass);

@@ -5,8 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f0372ed2-8128-4017-818d-8305c7715d34" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PHP/config.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/config.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/functions.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/functions.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/logged_in_sites/eventMaker.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/logged_in_sites/eventMaker.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/logged_in_sites/handler.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/logged_in_sites/eventMakeHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/logged_in_sites/logged_footer.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/logged_in_sites/logged_footer.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/logged_in_sites/profileMain.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/logged_in_sites/profileMain.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/login_process.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/login_process.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/verifyUser.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/verifyUser.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/event.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/event.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,6 +25,13 @@
   <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
     <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
     <execution />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -39,20 +55,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/xampp/htdocs/HWPProjektMARCELLO&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/xampp/htdocs/HWPProjektMARCELLO",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mariadb"
+    ]
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -73,7 +95,7 @@
       <option name="presentableId" value="Default" />
       <updated>1733119844620</updated>
       <workItem from="1733119845656" duration="1372000" />
-      <workItem from="1733121237000" duration="43000" />
+      <workItem from="1733121237000" duration="8103000" />
     </task>
     <servers />
   </component>

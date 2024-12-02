@@ -68,3 +68,13 @@ select {
     margin-left: auto;
     margin-right: auto;
 }
+
+.text-truncate {
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* Number of lines before truncation */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 3em;
+    white-space: normal;
+}

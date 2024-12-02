@@ -84,7 +84,7 @@ $android_link = "https://play.google.com/store/apps/details?id=YOUR_APP_PACKAGE"
         <!-- Divider and Bottom Section -->
         <hr class="my-4" style="border-color: #BBB8B2;">
         <div class="text-center">
-            <img src="../assets/pictures/logo.png" alt="Logo" style="max-width: 50px;" class="mb-2">
+            <img src="../../assets/pictures/logo.png" alt="Logo" style="max-width: 50px;" class="mb-2">
             <p class="mb-0" style="color: #DE9151;">&copy; 2024 MammaMia Marcello Event Organizer - All rights reserved.</p>
         </div>
     </div>

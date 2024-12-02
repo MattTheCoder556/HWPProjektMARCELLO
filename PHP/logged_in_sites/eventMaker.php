@@ -20,7 +20,7 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
     ?>
     <div class="form">
     <h1 class="mainTitle">Plan your event!</h1>
-    <form action="handler.php" method="post" enctype="multipart/form-data">
+    <form action="eventMakeHandler.php" method="post" enctype="multipart/form-data">
         <label for="photo" class="image">Image for your event!</label>
         <br>
         <input type="file" name="photo" id="img" accept="image/png, image/jpeg" onchange="previewImage(event)">

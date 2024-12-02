@@ -17,7 +17,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET")
 		// Check if any token was found
 		if ($stmt->rowCount() == 0)
 		{
-			redirectToLogin("Invalid or expired verification token.", null);
+			redirectToLogin("Invalid or expired verification token.", null,0);
 			exit();
 		}
 
@@ -37,7 +37,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET")
 
 		if($stmt->rowCount() > 0)
 		{
-			redirectToLogin("Your account is now verified, you can log in!", null);
+			redirectToLogin("Your account is now verified, you can log in!", null,0);
 		}
 	}
 	catch (PDOException $e)
@@ -51,5 +51,5 @@ if($_SERVER["REQUEST_METHOD"] == "GET")
 }
 else
 {
-	redirectToLogin("Invalid request", null);
+	redirectToLogin("Invalid request", null,0);
 }
