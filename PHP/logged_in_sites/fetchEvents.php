@@ -2,8 +2,6 @@
     <link rel="stylesheet" href="../../assets/css/event.css" type="text/css">
 </head>
 <?php
-// Fetch user's events
-
 require_once '../config.php';
 try
 {
@@ -30,7 +28,7 @@ if (!$user) {
 $userId = $user['id_user'];
 
 //Fetch events for the user ID
-$stmtEvents = $pdo->prepare("SELECT event_name, event_type, start_date, place, description FROM events WHERE owner = :owner");
+$stmtEvents = $pdo->prepare("SELECT id_event, event_name, event_type, start_date, place, description FROM events WHERE owner = :owner");
 $stmtEvents->bindValue(':owner', $userId, PDO::PARAM_INT);
 $stmtEvents->execute();
 
@@ -55,7 +53,7 @@ if (!empty($events)) {
             <p>
                 <small class="text-muted">Location: ' . htmlspecialchars($event['place']) . '</small>
             </p>
-            <button class="btn btn-link read-more" style="color: #DE9151;">Read more...</button>
+            <a href="../eventDetails.php?id=' . $event['id_event'] . '" class="btn btn-link read-more" style="color: #DE9151;">Read more...</a>
         </a>';
     }
     echo '</div>';

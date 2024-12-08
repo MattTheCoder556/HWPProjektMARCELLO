@@ -177,7 +177,7 @@ function redirectToLogin($message, $formData = [], $logged)
 	$_SESSION['formData'] = $formData;
     if($logged == 1)
     {
-        header("Location: ../login.php");
+        header("Location: login.php");
         exit();
     }
     else
