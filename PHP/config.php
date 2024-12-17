@@ -1,7 +1,7 @@
 <?php
 
 $dbHost = 'localhost';
-$dbName = 'marcello_test';
+$dbName = 'marcello_v2';
 $dbUser = 'root';
 $dbPass = '';
 
