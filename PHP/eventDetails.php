@@ -1,15 +1,13 @@
 <?php
-include 'header.php';
 require_once 'config.php';
-//session_start();
+include 'header.php';
 
 try {
     // Check if the user is logged in
     if (!isset($_SESSION['session_token'])) {
-        header("Location: index.php?error=not_logged_in");
+        header("Location: login.php");
         exit;
     }
-
     // Fetch the username from the session
     $username = $_SESSION['username'];
 
@@ -54,11 +52,12 @@ try {
     echo "Error: " . $e->getMessage();
     exit;
 }
+
+
 ?>
 
 <!DOCTYPE html>
 <html>
-<head>
     <meta charset="utf-8">
     <title>Event Details</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -70,10 +69,10 @@ try {
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4">
-                    <img src="logged_in_sites/<?= htmlspecialchars($event['event_pic']) ?>" 
-                         class="card-img-top img-fluid" 
-                         alt="Event Image"
-                         style="max-height: 300px; object-fit: cover;">
+                <img src="logged_in_sites/<?= htmlspecialchars($event['event_pic']) ?>" 
+                    class="card-img-top img-fluid" 
+                    alt="Event Image"   >
+
                     <div class="card-body">
                         <h2 class="card-title"><?= htmlspecialchars($event['event_name']) ?></h2>
                         <p><strong>Type:</strong> <?= htmlspecialchars($event['event_type']) ?></p>
@@ -106,11 +105,20 @@ try {
                     <form action="logged_in_sites/signoff_event.php" method="POST" class="mt-3">
                         <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
                         <button type="submit" class="btn btn-danger">Sign Off</button>
+                        <?php
+                        $eventName = rawurlencode($event['event_name']);
+                        $startDate = rawurlencode(date('Ymd\THis\Z', strtotime($event['start_date'])));
+                        $endDate = rawurlencode(date('Ymd\THis\Z', strtotime($event['end_date'])));
+                        $location = rawurlencode($event['place']);
+                        $details = rawurlencode($event['description']);
+                        ?>
+                        <a class="btn btn-primary" href="https://calendar.google.com/calendar/u/0/r/eventedit?text=<?= $eventName ?>&dates=<?= $startDate ?>/<?= $endDate ?>&location=<?= $location ?>&details=<?= $details ?>" target="_blank">Add to Google Calendar</a>
                     </form>
                 <?php endif; ?>
             </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
 </body>
 </html>

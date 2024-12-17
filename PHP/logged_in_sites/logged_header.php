@@ -35,8 +35,6 @@
 							}
 							?>
                             <a class="dropdown-item footer-link" href="../availableEvents.php">Available events</a>
-							<a class="dropdown-item footer-link" href="/analyze-name">Analyze by Name</a>
-							<a class="dropdown-item footer-link" href="/search-profiles">Search Instagram Profiles</a>
 						</div>
 					</li>
 					<!-- FAQ -->

@@ -39,9 +39,7 @@ $android_link = "https://play.google.com/store/apps/details?id=YOUR_APP_PACKAGE"
                                     echo '<li><a href="logged_in_sites/profileMain.php" class="footer-link">Profile</a></li>';
                                 }
                             ?>
-                            <li><a href="/photo-downloader" class="footer-link">Photo/Video Downloader</a></li>
-                            <li><a href="/analyze-name" class="footer-link">Analyze by Name</a></li>
-                            <li><a href="/search-profiles" class="footer-link">Search Instagram Profiles</a></li>
+                            <li><a href="availableEvents.php" class="footer-link">Available Events</a></li>
                         </ul>
                     </div>
 

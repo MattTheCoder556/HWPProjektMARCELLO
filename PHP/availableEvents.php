@@ -13,14 +13,14 @@ try {
     $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
 
     if ($searchTerm) {
-        // Prepare the query to filter events by the search term
-        $stmt = $pdo->prepare("SELECT * FROM events WHERE public = 1 AND 
+        // Prepare the query to filter events by the search term and exclude expired events
+        $stmt = $pdo->prepare("SELECT * FROM events WHERE public = 1 AND end_date >= NOW() AND 
             (event_name LIKE :search OR event_type LIKE :search OR description LIKE :search OR place LIKE :search)
             ORDER BY start_date DESC");
         $stmt->execute([':search' => '%' . $searchTerm . '%']);
     } else {
-        // Prepare the query to fetch all events
-        $stmt = $pdo->prepare("SELECT * FROM events WHERE public = 1 ORDER BY start_date DESC");
+        // Prepare the query to fetch all non-expired events
+        $stmt = $pdo->prepare("SELECT * FROM events WHERE public = 1 AND end_date >= NOW() ORDER BY start_date DESC");
         $stmt->execute();
     }
 
@@ -29,9 +29,8 @@ try {
     echo "Error: " . $e->getMessage(); // Handle any database connection errors
     exit;
 }
-
-
 ?>
+
 
 <!DOCTYPE html>
 <html>

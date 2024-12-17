@@ -40,8 +40,6 @@ $android_link = "https://play.google.com/store/apps/details?id=YOUR_APP_PACKAGE"
                                 }
                             ?>
                             <li><a class="dropdown-item footer-link" href="../availableEvents.php">Available events</a></li>
-                            <li><a href="/analyze-name" class="footer-link">Analyze by Name</a></li>
-                            <li><a href="/search-profiles" class="footer-link">Search Instagram Profiles</a></li>
                         </ul>
                     </div>
 
