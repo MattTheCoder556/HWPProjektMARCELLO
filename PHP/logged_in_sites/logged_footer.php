@@ -1,12 +1,15 @@
 <!-- footer.php -->
 <?php
 require __DIR__ . "/../../vendor/autoload.php";
+include_once "../config.php";
+include_once "../functions.php";
+
 use Detection\MobileDetect;
 $detect = new MobileDetect();
 
 $ios_link = "https://apps.apple.com/app/idYOUR_APP_ID";
 $android_link = "https://play.google.com/store/apps/details?id=YOUR_APP_PACKAGE";
-
+tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 ?>
 <footer class="py-5" style="background-color: #2E2E3A; color: #BBB8B2;">
     <div class="container">

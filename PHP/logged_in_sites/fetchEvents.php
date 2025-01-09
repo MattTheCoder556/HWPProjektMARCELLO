@@ -1,6 +1,7 @@
 <?php
-session_start();
-require_once '../config.php';
+include_once "../config.php";
+include_once "../functions.php";
+tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 
 try {
     // Establish the database connection

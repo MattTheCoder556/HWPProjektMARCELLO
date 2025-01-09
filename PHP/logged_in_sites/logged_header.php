@@ -1,3 +1,8 @@
+<?php
+include_once "../config.php";
+include_once "../functions.php";
+tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
+?>
 <header>
 	<nav class="navbar navbar-expand-md navbar-dark" style="background-color: #2E2E3A;">
 		<div class="container">

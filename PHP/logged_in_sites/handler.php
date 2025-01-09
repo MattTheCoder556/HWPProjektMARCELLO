@@ -1,8 +1,7 @@
 <?php
-//session_start();
-
-require '../config.php';
-require '../functions.php';
+include_once "../config.php";
+include_once "../functions.php";
+tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 
 /*if (!isset($_SESSION['user_id'])) {
     $_SESSION['message'] = "You must be logged in to create an event.";

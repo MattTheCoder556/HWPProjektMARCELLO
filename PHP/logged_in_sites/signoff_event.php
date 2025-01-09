@@ -1,6 +1,7 @@
 <?php
-require_once '../config.php';
-session_start();
+include_once "../config.php";
+include_once "../functions.php";
+tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 
 try {
     // Check if user is logged in
