@@ -1,63 +1,47 @@
 <?php
 include 'header.php';
-// Include database configuration and connect to the database
-include 'config.php'; // Include your database configuration
+
+// Include your configuration for API endpoints
+include 'config.php'; // Assume this file contains the API base URL and other configs
+
+// Initialize variables
+$userId = '';
+$events = [];
+$searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 try {
-    // Establish the PDO connection using the variables from db_config.php
-    $pdo = new PDO("mysql:host=" . $dbHost . ";dbname=" . $dbName, $dbUser, $dbPass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, // Handle errors with exceptions
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC // Fetch results as an associative array
-    ]);
-
-    $user = [];
-    // Get the logged-in user's ID
-    if(isset($_SESSION['username']) && isset($_SESSION['session_token']))
-    {
+    // Get the logged-in user's ID via API
+    if (isset($_SESSION['username']) && isset($_SESSION['session_token'])) {
         $username = $_SESSION['username'];
-        $stmtUser = $pdo->prepare("SELECT id_user FROM users WHERE username = :username");
-        $stmtUser->execute([':username' => $username]);
-        $user = $stmtUser->fetch();
+        $sessionToken = $_SESSION['session_token'];
+
+        // Make an API request to get the user's ID
+        $apiUrl = $apiBaseUrl . "/getUserId";
+        $response = file_get_contents($apiUrl . "?username=" . urlencode($username) . "&session_token=" . urlencode($sessionToken));
+
+        $user = json_decode($response, true);
+
+        if ($user && isset($user['id_user'])) {
+            $userId = $user['id_user'];
+        }
     }
 
-    if (!$user)
-    {
-        $userId = '';
-    }
-    else
-    {
-        $userId = $user['id_user'];
+    // Prepare the API URL for fetching events
+    $eventsApiUrl = $apiBaseUrl . "/getEvents?user_id=" . urlencode($userId);
+
+    if ($searchTerm) {
+        $eventsApiUrl .= "&search=" . urlencode($searchTerm);
     }
 
-    // Check if a search term is provided
-    $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
+    // Fetch events using the API
+    $response = file_get_contents($eventsApiUrl);
+    $events = json_decode($response, true);
 
-    if ($searchTerm)
-    {
-        // Prepare the query to filter events by the search term and exclude expired events
-        $stmt = $pdo->prepare("SELECT * FROM events WHERE public = 1 AND end_date >= NOW() AND owner != :user_id AND
-            (event_name LIKE :search OR event_type LIKE :search OR description LIKE :search OR place LIKE :search)
-            ORDER BY start_date DESC");
-        $stmt->execute([
-                ':user_id' => $userId,
-                ':search' => '%' . $searchTerm . '%'
-        ]);
+    if (!is_array($events)) {
+        $events = []; // Ensure events is an array
     }
-    else
-    {
-        // Prepare the query to fetch all non-expired events
-        $stmt = $pdo->prepare("SELECT * FROM events WHERE public = 1 AND end_date >= NOW() AND owner != :user_id ORDER BY start_date DESC");
-        $stmt->execute([':user_id' => $userId]);
-    }
-
-    $events = $stmt->fetchAll(); // Fetch all results into an array
-}
-catch (PDOException $e) {
-    echo "Error: " . $e->getMessage(); // Handle any database connection errors
-    exit;
-}
-catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
+} catch (Exception $e) {
+    echo "Error: " . htmlspecialchars($e->getMessage());
     exit;
 }
 ?>
@@ -77,21 +61,25 @@ catch (Exception $e) {
     <button type="submit">Search</button>
 </form>
  <div class="events-list">
-    <?php foreach ($events as $event): ?>
-        <div class="event-item">
-            <h2><?= htmlspecialchars($event['event_name']) ?></h2>
-            <div class="event_pic">
-            <img src="logged_in_sites/<?= htmlspecialchars($event['event_pic']) ?>" alt="Event Image" style="width: 200px; height: auto;">
+    <?php if (!empty($events)): ?>
+        <?php foreach ($events as $event): ?>
+            <div class="event-item">
+                <h2><?= htmlspecialchars($event['event_name']) ?></h2>
+                <div class="event_pic">
+                <img src="logged_in_sites/<?= htmlspecialchars($event['event_pic']) ?>" alt="Event Image" style="width: 200px; height: auto;">
+                </div>
+                <p><strong>Type:</strong> <?= htmlspecialchars($event['event_type']) ?></p>
+                <p><strong>Description:</strong> <?= htmlspecialchars($event['description']) ?></p>
+                <p><strong>Start Date:</strong> <?= htmlspecialchars($event['start_date']) ?></p>
+                <p><strong>End Date:</strong> <?= htmlspecialchars($event['end_date']) ?></p>
+                <p><strong>Location:</strong> <?= htmlspecialchars($event['place']) ?></p>
+                <br>
+                <a href="eventDetails.php?id=<?= urlencode($event['id_event']) ?>" class="detailsButton">Details</a>
             </div>
-            <p><strong>Type:</strong> <?= htmlspecialchars($event['event_type']) ?></p>
-            <p><strong>Description:</strong> <?= htmlspecialchars($event['description']) ?></p>
-            <p><strong>Start Date:</strong> <?= htmlspecialchars($event['start_date']) ?></p>
-            <p><strong>End Date:</strong> <?= htmlspecialchars($event['end_date']) ?></p>
-            <p><strong>Location:</strong> <?= htmlspecialchars($event['place']) ?></p>
-            <br>
-            <a href="eventDetails.php?id=<?= urlencode($event['id_event']) ?>" class="detailsButton">Details</a>
-            </div>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p>No events found.</p>
+    <?php endif; ?>
 </div>
 <?php
 include 'footer.php';

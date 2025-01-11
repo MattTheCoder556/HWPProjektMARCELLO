@@ -1,61 +1,62 @@
 <?php
+
 require_once 'config.php';
-if (isset($_SESSION['session_token']))
-{
+
+// Include the header based on whether the user is logged in or not
+if (isset($_SESSION['session_token'])) {
     include_once 'logged_in_sites/logged_header.php';
-}
-else
-{
+} else {
     include_once 'header.php';
 }
+
+$eventId = $_GET['id'] ?? null;
+if (empty($eventId)) {
+    die('No event ID provided!');
+}
+
 try {
-    $isSignedUp = false; // Default state for not logged-in users
-    $userId = null;      // Default user ID when not logged in
-    $username = null;    // Default username when not logged in
-
-    // Establish the PDO connection
-    $pdo = new PDO("mysql:host=" . $dbHost . ";dbname=" . $dbName, $dbUser, $dbPass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-
-    // Get the event ID from the query string
-    if (empty($_GET['id'])) {
-        throw new Exception("No event ID provided!");
+    // Initialize variables
+    $event = null;
+    $isSignedUp = false;
+    
+    $baseURL = "http://localhost/HWP_2024/MammaMiaMarcello/PHP";
+    
+    // Fetch event details using the API (GET request to getEvent)
+    $eventResponse = @file_get_contents($baseURL . "/api.php?action=getEvent&id=" . $eventId);
+    if ($eventResponse === false) {
+        throw new Exception('Failed to fetch event details');
     }
-    $eventId = $_GET['id'];
+    $event = json_decode($eventResponse, true);
 
-    // Fetch the event details using the ID
-    $stmt = $pdo->prepare("SELECT * FROM events WHERE id_event = :id AND public = 1");
-    $stmt->execute([':id' => $eventId]);
-    $event = $stmt->fetch();
-
-    if (!$event) {
-        throw new Exception("Event not found or not public!");
+    if (isset($event['error'])) {
+        throw new Exception($event['error']);
     }
 
-    // Check if the user is logged in
+    // If the user is logged in, fetch the user ID and check if they are signed up
     if (isset($_SESSION['session_token'])) {
-        // Fetch the username from the session
-        $username = $_SESSION['username'];
-
-        // Fetch the user ID based on the username
-        $stmtUser = $pdo->prepare("SELECT id_user FROM users WHERE username = :username");
-        $stmtUser->execute([':username' => $username]);
-        $user = $stmtUser->fetch();
-
-        if (!$user) {
-            throw new Exception("Invalid user. No matching user found.");
+        // Use session token directly to fetch user details
+        $sessionToken = $_SESSION['session_token'];
+        
+        // Fetch user from session_tokens
+        $stmt = $pdo->prepare("SELECT id_user FROM session_tokens WHERE token = :session_token AND expiry_date > NOW()");
+        $stmt->execute([':session_token' => $sessionToken]);
+        $user = $stmt->fetch();
+        
+        if ($user) {
+            $userId = $user['id_user'];
+        } else {
+            throw new Exception('Invalid session or session expired');
         }
-        $userId = $user['id_user'];
 
-        // Check if the user is signed up for this event
-        $stmtSignup = $pdo->prepare("SELECT * FROM event_signups WHERE event_id = :event_id AND user_id = :user_id");
-        $stmtSignup->execute([':event_id' => $eventId, ':user_id' => $userId]);
-        $isSignedUp = $stmtSignup->fetch();
+        // Check if the user is signed up for the event
+        $signupQuery = "SELECT COUNT(*) FROM event_signups WHERE event_id = :event_id AND user_id = :user_id";
+        $stmt = $pdo->prepare($signupQuery);
+        $stmt->execute(['event_id' => $eventId, 'user_id' => $userId]);
+        $isSignedUp = $stmt->fetchColumn() > 0;
     }
+
 } catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
+    echo "Error: " . htmlspecialchars($e->getMessage());
     exit;
 }
 ?>
@@ -74,10 +75,9 @@ try {
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4">
-                <img src="logged_in_sites/<?= htmlspecialchars($event['event_pic']) ?>" 
-                    class="card-img-top img-fluid" 
-                    alt="Event Image"   >
-
+                    <img src="logged_in_sites/<?= htmlspecialchars($event['event_pic']) ?>" 
+                        class="card-img-top img-fluid" 
+                        alt="Event Image">
                     <div class="card-body">
                         <h2 class="card-title"><?= htmlspecialchars($event['event_name']) ?></h2>
                         <p><strong>Type:</strong> <?= htmlspecialchars($event['event_type']) ?></p>
@@ -90,54 +90,34 @@ try {
             </div>
         </div>
         <div class="row">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <h3>Description</h3>
-                        <p><?= htmlspecialchars($event['description']) ?></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
             <div class="col-12 text-center">
-                <div class="row">
-                    <div class="col-12 text-center">
-                        <?php if (isset($_SESSION['session_token'])): ?>
-                            <?php if (!$isSignedUp): ?>
-                                <br>
-                                <form method="POST" action="logged_in_sites/signUp.php">
-                                    <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
-                                    <button type="submit" class="btn btn-primary">Sign Up for Event</button>
-                                </form>
-                            <?php else: ?>
-                                <br>
-                                <form action="logged_in_sites/signoff_event.php" method="POST" class="mt-3">
-                                    <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
-                                    <button type="submit" class="btn btn-danger">Sign Off</button>
-                                </form>
-                                <?php
-                                $eventName = rawurlencode($event['event_name']);
-                                $startDate = rawurlencode(date('Ymd\THis\Z', strtotime($event['start_date'])));
-                                $endDate = rawurlencode(date('Ymd\THis\Z', strtotime($event['end_date'])));
-                                $location = rawurlencode($event['place']);
-                                $details = rawurlencode($event['description']);
-                                ?>
-                                <a class="btn btn-primary mt-3" href="https://calendar.google.com/calendar/u/0/r/eventedit?text=<?= $eventName ?>&dates=<?= $startDate ?>/<?= $endDate ?>&location=<?= $location ?>&details=<?= $details ?>" target="_blank">Add to Google Calendar</a>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <br>
-                            <a href="login.php" class="btn btn-warning">Login to Sign Up</a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
+                <?php if (isset($_SESSION['session_token'])): ?>
+                    <?php if (!$isSignedUp): ?>
+                        <form method="POST" action="logged_in_sites/signUp.php">
+                            <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
+                            <button type="submit" class="btn btn-primary">Sign Up for Event</button>
+                        </form>
+                    <?php else: ?>
+                        <form action="logged_in_sites/signoff_event.php" method="POST" class="mt-3">
+                            <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
+                            <button type="submit" class="btn btn-danger">Sign Off</button>
+                        </form>
+                        <?php
+                        $eventName = rawurlencode($event['event_name']);
+                        $startDate = rawurlencode(date('Ymd\THis\Z', strtotime($event['start_date']))); 
+                        $endDate = rawurlencode(date('Ymd\THis\Z', strtotime($event['end_date'])));
+                        $location = rawurlencode($event['place']);
+                        $details = rawurlencode($event['description']);
+                        ?>
+                        <a class="btn btn-primary mt-3" href="https://calendar.google.com/calendar/u/0/r/eventedit?text=<?= $eventName ?>&dates=<?= $startDate ?>/<?= $endDate ?>&location=<?= $location ?>&details=<?= $details ?>" target="_blank">Add to Google Calendar</a>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <a href="login.php" class="btn btn-warning">Login to Sign Up</a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
-    <?php
-        include_once 'footer.php';
-    ?>
+    <?php include_once 'footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

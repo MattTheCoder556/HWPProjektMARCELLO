@@ -1,6 +1,6 @@
 <?php
-include_once "../config.php";
-include_once "../functions.php";
+include_once __DIR__ . '/../config.php';
+include_once __DIR__ . '/../functions.php';
 tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 ?>
 <header>

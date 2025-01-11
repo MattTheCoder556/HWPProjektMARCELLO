@@ -3,26 +3,8 @@ include_once 'logged_header.php';
 require_once '../functions.php';
 require_once '../config.php';
 
-tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
-// Fetch user details
-try
-{
-    $pdo = new PDO("mysql:host=" . $dbHost . ";dbname=" . $dbName, $dbUser, $dbPass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-}
-catch (PDOException $e)
-{
-    die("Database connection failed: " . $e->getMessage());
-}
-$userId = $_SESSION['username'];
-$stmt = $pdo->prepare("SELECT firstname, lastname, username, phone FROM users WHERE username = :user");
-$stmt->bindValue(':user', $userId, PDO::PARAM_STR);
-$stmt->execute();
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$user)
-{
-    die("No user found with the provided username.");
-}
+// Assuming session token is stored in the session
+$sessionToken = $_SESSION['session_token'];
 ?>
 <!DOCTYPE html>
 <html lang="hu">
@@ -77,19 +59,19 @@ if (!$user)
         <form id="profileForm" class="row g-3">
             <div class="col-md-6">
                 <label for="firstname" class="form-label">First Name</label>
-                <input type="text" id="firstname" name="firstname" value="<?= htmlspecialchars($user['firstname']) ?>" class="form-control">
+                <input type="text" id="firstname" name="firstname" class="form-control">
             </div>
             <div class="col-md-6">
                 <label for="lastname" class="form-label">Last Name</label>
-                <input type="text" id="lastname" name="lastname" value="<?= htmlspecialchars($user['lastname']) ?>" class="form-control">
+                <input type="text" id="lastname" name="lastname" class="form-control">
             </div>
             <div class="col-md-6">
                 <label for="username" class="form-label">Username</label>
-                <input type="text" id="username" name="username" value="<?= htmlspecialchars($user['username']) ?>" class="form-control">
+                <input type="text" id="username" name="username" class="form-control">
             </div>
             <div class="col-md-6">
                 <label for="phone" class="form-label">Phone Number</label>
-                <input type="text" id="phone" name="phone" value="<?= htmlspecialchars($user['phone']) ?>" class="form-control">
+                <input type="text" id="phone" name="phone" class="form-control">
             </div>
             <div class="col-12 text-end">
                 <button type="button" id="saveProfile" class="btn btn-custom">Save Changes</button>
@@ -116,9 +98,11 @@ if (!$user)
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../../assets/js/readMore.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Fetch user profile data
+        fetchUserProfile();
+
         // Fetch user's events when the page loads
         fetchEvents();
         fetchEvents2();
@@ -142,6 +126,45 @@ if (!$user)
                 alert('An error occurred while updating the profile!');
             }
         });
+
+        // Fetch user profile data function
+        // Fetch user profile data function
+async function fetchUserProfile() {
+    try {
+        const url = 'http://localhost/HWP_2024/MammaMiaMarcello/PHP/api.php?action=getUserProfile&session_token=' + encodeURIComponent('<?php echo $sessionToken; ?>');
+        console.log( url);
+        
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch user profile. Status: ' + response.status);
+        }
+
+        const userProfile = await response.json();
+        console.log('User Profile Response:', userProfile); // Log the entire response
+
+        if (userProfile.error) {
+            alert(userProfile.error);
+            return;
+        }
+
+
+        // Ensure the expected fields exist in the response before attempting to fill the form
+        if (userProfile.firstname && userProfile.lastname && userProfile.username && userProfile.phone) {
+            // Fill the form with user profile data
+            document.getElementById('firstname').value = userProfile.firstname;
+            document.getElementById('lastname').value = userProfile.lastname;
+            document.getElementById('username').value = userProfile.username;
+            document.getElementById('phone').value = userProfile.phone;
+        } else {
+            alert('Error: Missing profile data.');
+        }
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        alert('Error fetching user profile.');
+    }
+}
+
 
         // Fetch events function
         async function fetchEvents() {

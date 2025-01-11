@@ -14,3 +14,5 @@ catch (PDOException $e)
 {
 	die("Database connection failed: " . $e->getMessage());
 }
+
+$apiBaseUrl = 'http://localhost/HWP_2024/MammaMiaMarcello/PHP/api';
