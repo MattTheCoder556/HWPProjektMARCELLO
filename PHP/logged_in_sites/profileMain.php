@@ -97,10 +97,16 @@ if (!$user)
         </form>
     </div>
 
-    <!-- Display Events -->
+    <!-- Display subscribed events -->
+    <div class="card p-4 mb-2">
+        <h2 class="mb-3">My subscribed Events</h2>
+        <div id="eventList">Loading events...</div>
+    </div>
+
+    <!-- Display my events -->
     <div class="card p-4">
         <h2 class="mb-3">My Events</h2>
-        <div id="eventList">Loading events...</div>
+        <div id="eventList2">Loading events...</div>
     </div>
 </div>
 
@@ -115,6 +121,7 @@ if (!$user)
     document.addEventListener('DOMContentLoaded', () => {
         // Fetch user's events when the page loads
         fetchEvents();
+        fetchEvents2();
 
         // Handle the Save Profile button click
         document.getElementById('saveProfile').addEventListener('click', async () => {
@@ -145,7 +152,18 @@ if (!$user)
                 document.getElementById('eventList').innerHTML = html;
             } catch (error) {
                 console.error('Error fetching events:', error);
-                document.getElementById('eventList').innerHTML = '<p>You don\'t have any events.</p>';
+                document.getElementById('eventList').innerHTML = '<p>You don\'t have any events here.</p>';
+            }
+        }
+
+        async function fetchEvents2() {
+            try {
+                const response = await fetch('fetchEvents2.php');
+                if (!response.ok) throw new Error('Network response was not ok');
+                document.getElementById('eventList2').innerHTML = await response.text();
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                document.getElementById('eventList2').innerHTML = '<p>You don\'t have any events here.</p>';
             }
         }
     });

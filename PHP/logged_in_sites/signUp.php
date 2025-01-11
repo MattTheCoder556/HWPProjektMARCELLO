@@ -4,7 +4,6 @@ include_once "../functions.php";
 tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 
 try {
-
     $username = $_SESSION['username']; // Retrieve the username from the session
     $eventId = $_POST['event_id'] ?? null;
 
@@ -30,6 +29,19 @@ try {
 
     $userId = $user['id_user'];
 
+    // Check if the user is the owner of the event
+    $stmtEventOwner = $pdo->prepare("SELECT owner FROM events WHERE id_event = :event_id");
+    $stmtEventOwner->execute([':event_id' => $eventId]);
+    $event = $stmtEventOwner->fetch();
+
+    if (!$event) {
+        throw new Exception("Event not found.");
+    }
+
+    if ($event['owner'] == $userId) {
+        throw new Exception("You cannot subscribe to your own event.");
+    }
+
     // Check if the user is already signed up for the event
     $stmtSignup = $pdo->prepare("SELECT * FROM event_signups WHERE event_id = :event_id AND user_id = :user_id");
     $stmtSignup->execute([':event_id' => $eventId, ':user_id' => $userId]);
@@ -46,4 +58,3 @@ try {
     echo "Error: " . $e->getMessage();
     exit;
 }
-?>

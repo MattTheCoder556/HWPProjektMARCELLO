@@ -1,4 +1,5 @@
 <?php
+include 'header.php';
 // Include database configuration and connect to the database
 include 'config.php'; // Include your database configuration
 
@@ -9,29 +10,57 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC // Fetch results as an associative array
     ]);
 
+    $user = [];
+    // Get the logged-in user's ID
+    if(isset($_SESSION['username']) && isset($_SESSION['session_token']))
+    {
+        $username = $_SESSION['username'];
+        $stmtUser = $pdo->prepare("SELECT id_user FROM users WHERE username = :username");
+        $stmtUser->execute([':username' => $username]);
+        $user = $stmtUser->fetch();
+    }
+
+    if (!$user)
+    {
+        $userId = '';
+    }
+    else
+    {
+        $userId = $user['id_user'];
+    }
+
     // Check if a search term is provided
     $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-    if ($searchTerm) {
+    if ($searchTerm)
+    {
         // Prepare the query to filter events by the search term and exclude expired events
-        $stmt = $pdo->prepare("SELECT * FROM events WHERE public = 1 AND end_date >= NOW() AND 
+        $stmt = $pdo->prepare("SELECT * FROM events WHERE public = 1 AND end_date >= NOW() AND owner != :user_id AND
             (event_name LIKE :search OR event_type LIKE :search OR description LIKE :search OR place LIKE :search)
             ORDER BY start_date DESC");
-        $stmt->execute([':search' => '%' . $searchTerm . '%']);
-    } else {
+        $stmt->execute([
+                ':user_id' => $userId,
+                ':search' => '%' . $searchTerm . '%'
+        ]);
+    }
+    else
+    {
         // Prepare the query to fetch all non-expired events
-        $stmt = $pdo->prepare("SELECT * FROM events WHERE public = 1 AND end_date >= NOW() ORDER BY start_date DESC");
-        $stmt->execute();
+        $stmt = $pdo->prepare("SELECT * FROM events WHERE public = 1 AND end_date >= NOW() AND owner != :user_id ORDER BY start_date DESC");
+        $stmt->execute([':user_id' => $userId]);
     }
 
     $events = $stmt->fetchAll(); // Fetch all results into an array
-} catch (PDOException $e) {
+}
+catch (PDOException $e) {
     echo "Error: " . $e->getMessage(); // Handle any database connection errors
     exit;
 }
+catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+    exit;
+}
 ?>
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -42,9 +71,6 @@ try {
     <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/available.css'>
 </head>
 <body>
-<?php
-include 'header.php';
-?>
  <h1 class="head1">Available Events</h1>
  <form method="GET" action="" class="search-bar">
     <input type="text" name="search" placeholder="Search for events..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
