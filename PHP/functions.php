@@ -102,67 +102,71 @@ function registerUser( string $firstName, string $lastName, string $username, st
 	}
 }
 
-function loginUser(string $username, string $password, string $dbHost, string $dbName, string $dbUser, string $dbPass)
+function loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass)
 {
-	try
-	{
-		$pdo = new PDO("mysql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    try {
+        $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-		// Check if username (email) is registered and fetch the is_verified status
-		$stmt = $pdo->prepare("SELECT id_user,is_verified,password FROM users WHERE username = :username");
-		$stmt->bindParam(':username', $username);
-		$stmt->execute();
-		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT id_user, is_verified, password FROM users WHERE username = :username");
+        $stmt->bindParam(':username', $username);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-		if (!$result)
-		{
-			redirectToLogin("This username (email) is not registered.", $_POST,1);
-			exit();
-		}
-		else
-		{
-			// Check if the account is verified
-			if ($result['is_verified'] == 0)
-			{
-				redirectToLogin("This username (email) is registered but not yet verified.", $_POST,1);
-			}
-			if (password_verify($password, $result['password']))
-			{
-				session_start();
+        if (!$result) {
+            return [
+                'success' => false,
+                'message' => 'This username (email) is not registered.'
+            ];
+        } else {
+            if ($result['is_verified'] == 0) {
+                return [
+                    'success' => false,
+                    'message' => 'This username (email) is registered but not yet verified.'
+                ];
+            }
 
-				$sessionToken = bin2hex(random_bytes(32));
-				$expiryDate = date("Y-m-d H:i:s", strtotime("+2 hours"));
-				$userId = $result['id_user'];
+            if (password_verify($password, $result['password'])) {
+                //session_start();
+                $sessionToken = bin2hex(random_bytes(32));
+                $expiryDate = date("Y-m-d H:i:s", strtotime("+2 hours"));
+                $userId = $result['id_user'];
 
-				$stmt = $pdo->prepare("
-                INSERT INTO session_tokens (token, expiry_date, id_user) VALUES (:token, :expiry_date, :id_user)");
-				$stmt->bindParam(':token', $sessionToken);
-				$stmt->bindParam(':expiry_date', $expiryDate);
-				$stmt->bindParam(':id_user', $userId);
-				$stmt->execute();
+                $stmt = $pdo->prepare("
+                    INSERT INTO session_tokens (token, expiry_date, id_user) 
+                    VALUES (:token, :expiry_date, :id_user)
+                ");
+                $stmt->bindParam(':token', $sessionToken);
+                $stmt->bindParam(':expiry_date', $expiryDate);
+                $stmt->bindParam(':id_user', $userId);
+                $stmt->execute();
 
-				$_SESSION['username'] = $username;
-				$_SESSION['session_token'] = $sessionToken;
+                $_SESSION['username'] = $username;
+                $_SESSION['session_token'] = $sessionToken;
 
-				header('Location: logged_in_sites/eventMaker.php');
-				exit();
-			}
-			else
-			{
-				redirectToLogin("The password is incorrect. Please try again.", $_POST,1);
-			}
-		}
-	}
-	catch (PDOException $e)
-	{
-		redirectToRegister("Error: " . htmlspecialchars($e->getMessage(), ENT_QUOTES), $_POST);
-	}
-	finally
-	{
-		$pdo = null;
-	}
+                return [
+                    'success' => true,
+                    'message' => 'Login successful!'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'The password is incorrect. Please try again.'
+                ];
+            }
+        }
+    } catch (PDOException $e) {
+        return [
+            'success' => false,
+            'message' => 'Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES)
+        ];
+    } finally {
+        $pdo = null;
+    }
 }
+
+
+
 
 function redirectToRegister($message, $formData = [])
 {

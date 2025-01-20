@@ -15,14 +15,23 @@ try {
         $username = $_SESSION['username'];
         $sessionToken = $_SESSION['session_token'];
 
-        // Make an API request to get the user's ID
-        $apiUrl = $apiBaseUrl . "/getUserId";
-        $response = file_get_contents($apiUrl . "?username=" . urlencode($username) . "&session_token=" . urlencode($sessionToken));
+        // Build query parameters
+        $params = [
+            'username' => $username,
+            'session_token' => $sessionToken,
+        ];
 
-        $user = json_decode($response, true);
+        // Construct the API URL with query parameters
+        $apiUrl = $apiBaseUrl . "/getUserId?" . http_build_query($params);
 
-        if ($user && isset($user['id_user'])) {
-            $userId = $user['id_user'];
+        // Suppress errors with the @ operator and handle a failed API call
+        $response = @file_get_contents($apiUrl);
+
+        if ($response !== false) {
+            $user = json_decode($response, true);
+            if (is_array($user) && isset($user['id_user'])) {
+                $userId = $user['id_user'];
+            }
         }
     }
 
@@ -33,16 +42,17 @@ try {
         $eventsApiUrl .= "&search=" . urlencode($searchTerm);
     }
 
-    // Fetch events using the API
-    $response = file_get_contents($eventsApiUrl);
-    $events = json_decode($response, true);
+    // Suppress errors and handle a failed API call for fetching events
+    $response = @file_get_contents($eventsApiUrl);
 
-    if (!is_array($events)) {
-        $events = []; // Ensure events is an array
+    if ($response !== false) {
+        $events = json_decode($response, true);
+        if (!is_array($events)) {
+            $events = []; // Ensure events is an array
+        }
     }
 } catch (Exception $e) {
-    echo "Error: " . htmlspecialchars($e->getMessage());
-    exit;
+    // Silently ignore exceptions or handle them here if needed
 }
 ?>
 <!DOCTYPE html>
