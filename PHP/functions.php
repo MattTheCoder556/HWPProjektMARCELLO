@@ -165,9 +165,6 @@ function loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass)
     }
 }
 
-
-
-
 function redirectToRegister($message, $formData = [])
 {
 	$_SESSION['error'] = $message;

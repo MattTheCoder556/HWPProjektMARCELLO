@@ -1,62 +1,76 @@
 <?php
 include 'header.php';
+include 'config.php';
 
-// Include your configuration for API endpoints
-include 'config.php'; // Assume this file contains the API base URL and other configs
-
-// Initialize variables
-$userId = '';
+$userId = null;
 $events = [];
 $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 try {
-    // Get the logged-in user's ID via API
-    if (isset($_SESSION['username']) && isset($_SESSION['session_token'])) {
+    $pdo = new PDO("mysql:host=" . $dbHost . ";dbname=" . $dbName, $dbUser, $dbPass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
+
+    // Check if the user is logged in
+    $isLoggedIn = isset($_SESSION['username'], $_SESSION['session_token']);
+
+    if ($isLoggedIn)
+    {
         $username = $_SESSION['username'];
-        $sessionToken = $_SESSION['session_token'];
+        $stmtUser = $pdo->prepare("SELECT id_user FROM users WHERE username = :username");
+        $stmtUser->execute([':username' => $username]);
+        $user = $stmtUser->fetch();
 
-        // Build query parameters
-        $params = [
-            'username' => $username,
-            'session_token' => $sessionToken,
-        ];
-
-        // Construct the API URL with query parameters
-        $apiUrl = $apiBaseUrl . "/getUserId?" . http_build_query($params);
-
-        // Suppress errors with the @ operator and handle a failed API call
-        $response = @file_get_contents($apiUrl);
-
-        if ($response !== false) {
-            $user = json_decode($response, true);
-            if (is_array($user) && isset($user['id_user'])) {
-                $userId = $user['id_user'];
-            }
+        if ($user)
+        {
+            $userId = $user['id_user'];
         }
     }
 
-    // Prepare the API URL for fetching events
-    $eventsApiUrl = $apiBaseUrl . "/getEvents?user_id=" . urlencode($userId);
-
-    if ($searchTerm) {
-        $eventsApiUrl .= "&search=" . urlencode($searchTerm);
+    if ($isLoggedIn && $userId !== null)
+    {
+        // Logged-in user: Exclude events where they are the owner
+        $sql = "
+            SELECT * 
+            FROM events 
+            WHERE public = 1 
+              AND end_date >= NOW() 
+              AND owner != :user_id
+        ";
+        $params = [':user_id' => $userId];
+    }
+    else
+    {
+        // Logged-out user: Fetch all public events
+        $sql = "
+            SELECT * 
+            FROM events 
+            WHERE public = 1 
+              AND end_date >= NOW()
+        ";
+        $params = [];
     }
 
-    // Suppress errors and handle a failed API call for fetching events
-    $response = @file_get_contents($eventsApiUrl);
-
-    if ($response !== false) {
-        $events = json_decode($response, true);
-        if (!is_array($events)) {
-            $events = []; // Ensure events is an array
-        }
+    // Add search condition if a search term is provided
+    if (!empty($searchTerm)) {
+        $sql .= " AND (event_name LIKE :search OR event_type LIKE :search OR description LIKE :search OR place LIKE :search)";
+        $params[':search'] = '%' . $searchTerm . '%';
     }
-} catch (Exception $e) {
-    // Silently ignore exceptions or handle them here if needed
+
+    $sql .= " ORDER BY start_date DESC";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $events = $stmt->fetchAll();
+
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
 }
+
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
@@ -65,18 +79,18 @@ try {
     <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/available.css'>
 </head>
 <body>
- <h1 class="head1">Available Events</h1>
- <form method="GET" action="" class="search-bar">
-    <input type="text" name="search" placeholder="Search for events..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
+<h1 class="head1">Available Events</h1>
+<form method="GET" action="" class="search-bar">
+    <input type="text" name="search" placeholder="Search for events..." value="<?= htmlspecialchars($searchTerm) ?>">
     <button type="submit">Search</button>
 </form>
- <div class="events-list">
+<div class="events-list">
     <?php if (!empty($events)): ?>
         <?php foreach ($events as $event): ?>
             <div class="event-item">
                 <h2><?= htmlspecialchars($event['event_name']) ?></h2>
                 <div class="event_pic">
-                <img src="logged_in_sites/<?= htmlspecialchars($event['event_pic']) ?>" alt="Event Image" style="width: 200px; height: auto;">
+                    <img src="logged_in_sites/<?= htmlspecialchars($event['event_pic']) ?>" alt="Event Image" style="width: 200px; height: auto;">
                 </div>
                 <p><strong>Type:</strong> <?= htmlspecialchars($event['event_type']) ?></p>
                 <p><strong>Description:</strong> <?= htmlspecialchars($event['description']) ?></p>

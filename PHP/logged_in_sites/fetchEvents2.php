@@ -41,7 +41,17 @@ try {
             echo "<p><strong>Start Date:</strong> " . htmlspecialchars($event['start_date']) . "</p>";
             echo "<p><strong>End Date:</strong> " . htmlspecialchars($event['end_date']) . "</p>";
             echo "<p><strong>Location:</strong> " . htmlspecialchars($event['place']) . "</p>";
+
+            // "Check Event" button
             echo "<a href='../eventDetails.php?id=" . urlencode($event['id_event']) . "' class='btn btn-primary mt-2'>Check Event</a>";
+
+            // "Invite People" button
+            echo "<button 
+        type='button' 
+        class='btn btn-warning mt-2 ml-2' 
+        onclick='openInviteModal(" . htmlspecialchars($event['id_event']) . ")'>
+        <i class='fas fa-user-plus'></i> Invite People
+      </button>";
             echo "</div>";
         }
     }

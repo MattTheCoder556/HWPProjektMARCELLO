@@ -1,9 +1,20 @@
 <?php
-// Start session at the top of the file to access session variables
-session_start();
+header('Content-Type: application/json');
 
-// Include database configuration and establish a connection
-include 'config.php'; // Assume this file contains the API base URL and other configs
+/*
+    Important: Replace * with specific domains (e.g., http://localhost:63342) in production for security purposes.
+    II
+    II
+    ˇˇ
+ */
+header('Access-Control-Allow-Origin: *'); // Allows requests from any origin
+
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS'); // Allowed request methods
+header('Access-Control-Allow-Headers: Content-Type, Authorization'); // Allowed headers
+header('Access-Control-Allow-Credentials: true'); // If credentials (cookies) are required
+
+session_start();
+include 'config.php';
 
 try {
     $pdo = new PDO("mysql:host=" . $dbHost . ";dbname=" . $dbName, $dbUser, $dbPass, [
@@ -17,7 +28,7 @@ try {
 }
 
 // Determine the API action from the request
-$action = isset($_GET['action']) ? $_GET['action'] : '';
+$action = $_GET['action'] ?? '';
 
 switch ($action) {
     case 'getUserId':
@@ -187,15 +198,14 @@ function isUserSignedUp($pdo) {
 }
 
 function getUserProfile($pdo) {
-    if (!isset($_SESSION['session_token'])) {
+    $sessionToken = $_SESSION['session_token'] ?? $_GET['session_token'] ?? null;
+
+    if (!$sessionToken) {
         echo json_encode(["error" => "Session token is required"]);
         exit;
     }
 
-    $sessionToken = $_SESSION['session_token'];
-
     try {
-        // Corrected the join condition between users and session_tokens
         $stmt = $pdo->prepare("
             SELECT u.firstname, u.lastname, u.username, u.phone 
             FROM users u
