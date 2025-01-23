@@ -1,8 +1,6 @@
 <?php
 include_once "../config.php";
 include_once "../functions.php";
-
-tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,8 +13,7 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 </head>
 <body>
     <?php
-    
-    include "logged_header.php";
+        include_once "logged_header.php";
     ?>
     <div class="form">
     <h1 class="mainTitle">Plan your event!</h1>
@@ -30,29 +27,31 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
             echo $_SESSION['message'];
             unset($_SESSION['message']); 
         }
-    ?>
+        ?>
         <br><br>
 
         <label for="title" class="title">Name of your event:</label>
         <br>
         <input type="text" name="title" id="tit">
         <?php
-        if (isset($_SESSION['message2'])) {
+        if (isset($_SESSION['message2']))
+        {
             echo $_SESSION['message2'];
             unset($_SESSION['message2']); 
         }
-    ?>
+        ?>
         <br><br>
 
         <label for="number" class="number">Number of attendees:</label>
         <br>
         <input type="number" name="number" id="num" max="1000" min="0">
         <?php
-        if (isset($_SESSION['message3'])) {
+        if (isset($_SESSION['message3']))
+        {
             echo $_SESSION['message3'];
             unset($_SESSION['message3']);
         }
-    ?>
+        ?>
         <br><br>
 
         <div class="dates">
@@ -63,10 +62,13 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
         <input type="datetime-local" name="endDate" id="eDate">
         <br>
         <?php
-        if (isset($_SESSION['message7'])) {
+        if (isset($_SESSION['message7']))
+        {
             echo $_SESSION['message7'];
             unset($_SESSION['message7']);
-        }elseif (isset($_SESSION['message8'])) {
+        }
+        elseif (isset($_SESSION['message8']))
+        {
             echo $_SESSION['message8'];
             unset($_SESSION['message8']);
         }

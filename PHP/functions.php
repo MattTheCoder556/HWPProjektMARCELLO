@@ -359,3 +359,78 @@ function send_password_reset_email($email, $token)
 		echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
 	}
 }
+
+function sendInviteEmail($email, $inviteToken, $inviter)
+{
+    $mail = new PHPMailer(true);
+
+    try
+    {
+        // Gábor part
+        $mail->isSMTP();
+        $mail->Host = 'sandbox.smtp.mailtrap.io';
+        $mail->SMTPAuth = true;
+        $mail->Port = 2525;
+        $mail->Username = 'ddd5c19228d753';
+        $mail->Password = '138a3f6bfe0c20';
+
+        // Máté part
+        /*
+        $mail->isSMTP();
+        $mail->Host = 'sandbox.smtp.mailtrap.io';
+        $mail->SMTPAuth = true;
+        $mail->Port = 2525;
+        $mail->Username = 'd4a04c8e5deb9e';
+        $mail->Password = 'bde0a6f4e281eb';
+        */
+
+        $mail->setFrom('mmminvite.noreply@gmail.com', $inviter);
+        $mail->addAddress($email);
+
+        // Invitation links (Gábor)
+        $acceptLink = "http://localhost/HWPProjektMARCELLO/PHP/logged_in_sites/invitation_statusHandler.php?action=accept&token={$inviteToken}";
+        $declineLink = "http://localhost/HWPProjektMARCELLO/PHP/logged_in_sites/invitation_statusHandler.php?action=decline&token={$inviteToken}";
+        $dontKnowLink = "http://localhost/HWPProjektMARCELLO/PHP/logged_in_sites/invitation_statusHandler.php?action=dontknow&token={$inviteToken}";
+
+        // Invitation links (Máté)
+
+
+        // HTML version of the email
+        $mail->isHTML(true);
+        $mail->Subject = "You have been invited to an event!";
+        $mail->Body = "
+            <html lang='en'>
+            <body>
+                <h2>You are invited to a special event!</h2>
+                <p>We are excited to invite you to join us for a memorable event.</p>
+                <p>To RSVP, please click one of the options below:</p>
+                <p><a href='{$acceptLink}'>Accept Invitation</a></p>
+                <p><a href='{$declineLink}'>Decline Invitation</a></p>
+                <p><a href='{$dontKnowLink}'>Not Sure Yet</a></p>
+                <p>Looking forward to seeing you!</p>
+                <p>Best Regards,</p>
+                <p>The MammaMiaMarcello Team</p>
+            </body>
+            </html>
+        ";
+
+        // Plain text version of the email (alternative body)
+        $mail->AltBody = "
+            You are invited to a special event!\n\n
+            We are excited to invite you to join us for a memorable event.\n\n
+            To RSVP, please click one of the options below:\n\n
+            Accept Invitation: {$acceptLink}\n\n
+            Decline Invitation: {$declineLink}\n\n
+            Not Sure Yet: {$dontKnowLink}\n\n
+            Looking forward to seeing you!\n\n
+            Best Regards,\n
+            The MammaMiaMarcello Team
+        ";
+
+        $mail->send();
+    }
+    catch (Exception $e)
+    {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    }
+}

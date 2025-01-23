@@ -95,7 +95,13 @@ try {
         ":invite_expire" => $inviteExpire,
     ]);
 
-    echo json_encode(["success" => "Invite sent successfully."]);
+    try {
+        sendInviteEmail($email, $inviteToken, "MMMinvite." . $username);
+        echo json_encode(["success" => "Invite sent successfully."]);
+    }
+    catch (Exception $m) {
+        echo json_encode(["error" => "An error occurred during sending the email: " . $m->getMessage()]);
+    }
 } catch (Exception $e) {
     echo json_encode(["error" => "An error occurred: " . $e->getMessage()]);
 }
