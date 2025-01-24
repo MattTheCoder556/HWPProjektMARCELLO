@@ -52,6 +52,13 @@ try {
         onclick='openInviteModal(" . htmlspecialchars($event['id_event']) . ")'>
         <i class='fas fa-user-plus'></i> Invite People
       </button>";
+
+            echo "<button 
+        type='button' 
+        class='btn btn-success mt-2 ml-2' 
+        onclick='openWishlistModal(" . htmlspecialchars($event['id_event']) . ")'>
+        <i class='fas fa-list'></i> Manage Wishlist
+      </button>";
             echo "</div>";
         }
     }
