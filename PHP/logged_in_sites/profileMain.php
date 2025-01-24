@@ -347,13 +347,11 @@ $sessionToken = $_SESSION['session_token'];
             // Collect form data
             const form = document.getElementById('profileForm');
             const formData = new FormData(form);
-
             try {
                 const response = await fetch('updateProfile.php', {
                     method: 'POST',
                     body: formData
                 });
-
                 const text = await response.text();
                 alert(text); // Display the server response
             } catch (error) {
