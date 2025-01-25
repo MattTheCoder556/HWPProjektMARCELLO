@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f0372ed2-8128-4017-818d-8305c7715d34" name="Changes" comment="" />
+    <list default="true" id="f0372ed2-8128-4017-818d-8305c7715d34" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/PHP/logged_in_sites/add_to_event_wishlist.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PHP/logged_in_sites/editEvent.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PHP/logged_in_sites/wishlist_events.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MMMMobil/Real/app1v2/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/MMMMobil/Real/app1v2/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/eventDetails.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/eventDetails.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/functions.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/functions.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/logged_in_sites/fetchEvents2.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/logged_in_sites/fetchEvents2.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PHP/logged_in_sites/profileMain.php" beforeDir="false" afterPath="$PROJECT_DIR$/PHP/logged_in_sites/profileMain.php" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -39,6 +49,9 @@
   &quot;associatedIndex&quot;: 5
 }</component>
   <component name="ProjectId" id="2peHuawoxIUqPcNKOxzIJTByVbN" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -46,7 +59,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Rebasing main",
     "last_opened_file_path": "C:/xampp/htdocs/suli-IWR/kollokvium-gyakorlas",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",

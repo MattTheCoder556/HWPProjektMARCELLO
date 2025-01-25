@@ -22,7 +22,30 @@ try {
 
     $userId = $user['id_user'];
 
-    // Fetch events the user signed up for, excluding expired ones
+    // Handle Delete Request
+    // Handle Delete Request
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event_id'])) {
+    $deleteEventId = $_POST['delete_event_id'];
+
+    // Check if the event belongs to the logged-in user
+    $stmtCheck = $pdo->prepare("SELECT * FROM events WHERE id_event = :id AND owner = :owner_id");
+    $stmtCheck->execute([':id' => $deleteEventId, ':owner_id' => $userId]);
+    $eventToDelete = $stmtCheck->fetch();
+
+    if ($eventToDelete) {
+        // Delete the event
+        $stmtDelete = $pdo->prepare("DELETE FROM events WHERE id_event = :id");
+        $stmtDelete->execute([':id' => $deleteEventId]);
+
+        // Redirect to events page (or another confirmation page)
+        header("Location: profileMain.php");
+        exit;
+    } else {
+        echo "<p class='text-danger'>You are not authorized to delete this event or it does not exist.</p>";
+    }
+}
+
+    // Fetch events the user owns
     $stmtEvents = $pdo->prepare("SELECT * 
                                  FROM events
                                  WHERE owner = :owner_id
@@ -47,11 +70,26 @@ try {
 
             // "Invite People" button
             echo "<button 
-        type='button' 
-        class='btn btn-warning mt-2 ml-2' 
-        onclick='openInviteModal(" . htmlspecialchars($event['id_event']) . ")'>
-        <i class='fas fa-user-plus'></i> Invite People
-      </button>";
+                type='button' 
+                class='btn btn-warning mt-2 ml-2' 
+                onclick='openInviteModal(" . htmlspecialchars($event['id_event']) . ")'>
+                <i class='fas fa-user-plus'></i> Invite People
+            </button>";
+
+            // "Edit Event" button
+            echo "<a href='editEvent.php?id=" . urlencode($event['id_event']) . "' class='btn btn-secondary mt-2 ml-2'>
+                <i class='fas fa-edit'></i> Edit Event
+            </a>";
+
+            // "Delete Event" button (only for the event owner)
+            echo "<form method='POST' action='fetchEvents2.php' style='display: inline;' onsubmit='return confirm(\"Are you sure you want to delete this event?\");'>
+            <input type='hidden' name='delete_event_id' value='" . htmlspecialchars($event['id_event']) . "'>
+            <button type='submit' class='btn btn-danger mt-2 ml-2'>
+                <i class='fas fa-trash'></i> Delete Event
+            </button>
+        </form>";
+
+
             echo "</div>";
         }
     }

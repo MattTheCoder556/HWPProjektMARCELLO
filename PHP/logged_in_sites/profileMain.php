@@ -120,23 +120,56 @@ $sessionToken = $_SESSION['session_token'];
     </div>
 </div>
 
+<!-- Wishlist Modal -->
+<div class="modal fade" id="wishlistModal" tabindex="-1" aria-labelledby="wishlistModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #28a745; color: white;">
+                <h5 class="modal-title" id="wishlistModalLabel">Manage Wishlist for Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="wishlistItems">
+                    <!-- Existing wishlist items will be rendered here -->
+                </div>
+                <form id="wishlistForm">
+                    <input type="hidden" id="wishlistEventId" name="event_id">
+                    <div class="mb-3">
+                        <label for="wishlistItem" class="form-label">Add Item</label>
+                        <input type="text" class="form-control" id="wishlistItem" name="item" placeholder="Enter item name" required>
+                    </div>
+                    <button type="button" id="addWishlistItemButton" class="btn btn-success">Add to Wishlist</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Footer -->
 <footer class="p-3 text-center mt-5">
     <p>&copy; 2024 My Profile Page</p>
 </footer>
+</body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Fetch user profile data
-        fetchUserProfile();
 
-        // Fetch user's events when the page loads
+        // Fetch user profile data and events
+        fetchUserProfile();
         fetchEvents();
         fetchEvents2();
 
+        // Constants
         const inviteModalElement = document.getElementById("inviteModal");
         const inviteModal = new bootstrap.Modal(inviteModalElement);
+        const wishlistModalElement = document.getElementById("wishlistModal");
+        const wishlistModal = new bootstrap.Modal(wishlistModalElement);
+
+
+
+                //  Invite modal //
+
+
 
         window.openInviteModal = function (eventId) {
             document.getElementById("eventId").value = eventId; // Set the event ID in the hidden field
@@ -144,25 +177,22 @@ $sessionToken = $_SESSION['session_token'];
             document.getElementById("inviteEmail").value = "";
             inviteModal.show();
         };
-
         // Close modal when the close button is clicked
         document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(closeButton => {
             closeButton.addEventListener('click', () => {
-                inviteModal.hide(); // Hide the modal programmatically
+                inviteModal.hide();
+                wishlistModal.hide();
                 // console.log('Modal closed via close button'); // Debug log
             });
         });
-
         // Send the invite via AJAX
         document.getElementById("sendInviteButton").addEventListener("click", async () => {
             const eventId = document.getElementById("eventId").value;
             const email = document.getElementById("inviteEmail").value;
-
             if (!email) {
                 displayInviteMessage("Email is required.");
                 return;
             }
-
             try {
                 const response = await fetch("inviteHandler.php", {
                     method: "POST",
@@ -171,7 +201,6 @@ $sessionToken = $_SESSION['session_token'];
                     },
                     body: JSON.stringify({ event_id: eventId, email: email }),
                 });
-
                 const text = await response.text(); // Get raw text response
 
                 /*
@@ -193,7 +222,6 @@ $sessionToken = $_SESSION['session_token'];
                     displayInviteMessage("Invalid server response. Check logs for details.");
                     return;
                 }
-
                 if (result.error) {
 //                    console.error("Error:", result.error);
                     displayInviteMessage(result.error);
@@ -208,7 +236,6 @@ $sessionToken = $_SESSION['session_token'];
                 displayInviteMessage("Failed to send the invite. Please try again later.");
             }
         });
-
         // Display error message in the modal
         function displayInviteMessage(message) {
             const messageBox = document.getElementById("inviteMessage");
@@ -216,7 +243,106 @@ $sessionToken = $_SESSION['session_token'];
             messageBox.style.display = "block";
         }
 
-        // Handle the Save Profile button click
+
+
+            // Wishlist modal //
+
+
+
+        window.openWishlistModal = function (eventId) {
+            document.getElementById("wishlistEventId").value = eventId; // Set the event ID in the hidden field
+            document.getElementById("wishlistItem").value = ""; // Clear the input field
+            fetchWishlistItems(eventId); // Load existing wishlist items
+            wishlistModal.show();
+        };
+// Fetch Wishlist Items
+        async function fetchWishlistItems(eventId) {
+            try {
+                const response = await fetch("wishlistHandler.php?action=getItems&event_id=" + encodeURIComponent(eventId));
+                if (!response.ok) throw new Error("Failed to fetch wishlist items.");
+                const data = await response.json();
+                renderWishlistItems(data.wishes); // Render items directly from JSON array
+            } catch (error) {
+                console.error("Error fetching wishlist items:", error);
+                document.getElementById("wishlistItems").innerHTML = "<p>Failed to load wishlist items.</p>";
+            }
+        }
+// Render Wishlist Items
+        function renderWishlistItems(items) {
+            const wishlistItemsDiv = document.getElementById("wishlistItems");
+            wishlistItemsDiv.innerHTML = ""; // Clear existing items
+            if (items.length > 0) {
+                items.forEach((item) => {
+                    const itemElement = document.createElement("div");
+                    itemElement.className = "d-flex justify-content-between align-items-center mb-2";
+                    itemElement.innerHTML = `
+                <span>${item}</span>
+                <button class="btn btn-sm btn-danger" onclick="removeWishlistItem('${item}')">Remove</button>
+            `;
+                    wishlistItemsDiv.appendChild(itemElement);
+                });
+            } else {
+                wishlistItemsDiv.innerHTML = "<p>No items in the wishlist.</p>";
+            }
+        }
+// Add Wishlist Item
+        document.getElementById("addWishlistItemButton").addEventListener("click", async () => {
+            const eventId = document.getElementById("wishlistEventId").value;
+            const item = document.getElementById("wishlistItem").value;
+            if (!item) {
+                alert("Item name is required.");
+                return;
+            }
+            try {
+                const response = await fetch("wishlistHandler.php?action=addItem", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ event_id: eventId, item: item }),
+                });
+                const result = await response.json();
+                if (result.success) {
+                    fetchWishlistItems(eventId); // Reload the wishlist
+                    document.getElementById("wishlistItem").value = ""; // Clear the input field
+                } else {
+                    alert("Error: " + result.error);
+                }
+            } catch (error) {
+                console.error("Error adding wishlist item:", error);
+                alert("Failed to add item. Please try again.");
+            }
+        });
+// Remove Wishlist Item
+        window.removeWishlistItem = async function (item) {
+            const eventId = document.getElementById("wishlistEventId").value;
+            if (!confirm("Are you sure you want to remove this item?")) return;
+            try {
+                const response = await fetch("wishlistHandler.php?action=removeItem", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ event_id: eventId, item: item }),
+                });
+                const result = await response.json();
+                if (result.success) {
+                    fetchWishlistItems(eventId); // Reload the wishlist
+                } else {
+                    alert("Error: " + result.error);
+                }
+            } catch (error) {
+                console.error("Error removing wishlist item:", error);
+                alert("Failed to remove item. Please try again.");
+            }
+        };
+
+
+
+                    // Save Profile part //
+
+
+
         document.getElementById('saveProfile').addEventListener('click', async () => {
             // Collect form data
             const form = document.getElementById('profileForm');
@@ -236,32 +362,29 @@ $sessionToken = $_SESSION['session_token'];
             }
         });
 
-        // Fetch user profile data function
+
+
+        // Functions
+
+
+
 async function fetchUserProfile() {
     try {
         const url = 'http://localhost/HWPProjektMARCELLO/PHP/api.php?action=getUserProfile&session_token=' + encodeURIComponent('<?php echo $sessionToken; ?>');
-        console.log('Requesting: ' + url);
-        
+        // console.log('Requesting: ' + url);
         const response = await fetch(url);
-
-        console.log('Raw Response: ', response);
-
+        // console.log('Raw Response: ', response);
         if (!response.ok) {
             throw new Error('HTTP error: ' + response.status);
         }
-
         const textResponse = await response.text();
-        console.log('Raw JSON:', textResponse);
-
-
+        // console.log('Raw JSON:', textResponse);
         const userProfile = JSON.parse(textResponse);
-        console.log('User Profile Response:', userProfile); // Log the entire response
-
+        // console.log('User Profile Response:', userProfile); // Log the entire response
         if (userProfile.error) {
             alert(userProfile.error);
             return;
         }
-
         if (userProfile.firstname && userProfile.lastname && userProfile.username && userProfile.phone) {
             // Fill the form with user profile data
             document.getElementById('firstname').value = userProfile.firstname;
@@ -277,35 +400,32 @@ async function fetchUserProfile() {
     }
 }
 
+async function fetchEvents() {
+    try {
+        const response = await fetch('fetchEvents.php');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const html = await response.text();
+        document.getElementById('eventList').innerHTML = html;
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        document.getElementById('eventList').innerHTML = '<p>You don\'t have any events here.</p>';
+    }
+}
 
-        // Fetch events function
-        async function fetchEvents() {
-            try {
-                const response = await fetch('fetchEvents.php');
-                if (!response.ok) throw new Error('Network response was not ok');
-                const html = await response.text();
-                document.getElementById('eventList').innerHTML = html;
-            } catch (error) {
-                console.error('Error fetching events:', error);
-                document.getElementById('eventList').innerHTML = '<p>You don\'t have any events here.</p>';
-            }
-        }
-
-        async function fetchEvents2() {
-            try {
-                const response = await fetch('fetchEvents2.php');
-                if (!response.ok) throw new Error('Network response was not ok');
-                document.getElementById('eventList2').innerHTML = await response.text();
-            } catch (error) {
-                console.error('Error fetching events:', error);
-                document.getElementById('eventList2').innerHTML = '<p>You don\'t have any events here.</p>';
-            }
-        }
-    });
+async function fetchEvents2() {
+    try {
+        const response = await fetch('fetchEvents2.php');
+        if (!response.ok) throw new Error('Network response was not ok');
+        document.getElementById('eventList2').innerHTML = await response.text();
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        document.getElementById('eventList2').innerHTML = '<p>You don\'t have any events here.</p>';
+    }
+}
+});
 </script>
 
 <?php
 include_once 'logged_footer.php';
 ?>
-</body>
 </html>
