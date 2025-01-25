@@ -96,6 +96,32 @@ $sessionToken = $_SESSION['session_token'];
 </div>
 </div>
 
+<!-- Invite People Modal -->
+<div class="modal fade" id="inviteModal" tabindex="-1" aria-labelledby="inviteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #F34213; color: white;">
+                <h5 class="modal-title" id="inviteModalLabel">Invite People to Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+            <div class="modal-body">
+                <form id="inviteForm">
+                    <input type="hidden" id="eventId" name="event_id">
+                        <div class="mb-3">
+                            <label for="inviteEmail" class="form-label">Invitee's Email</label>
+                            <input type="email" class="form-control" id="inviteEmail" name="email" placeholder="Enter email address" required>
+                        </div>
+                    <div id="inviteMessage" class="text-danger" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="sendInviteButton" class="btn btn-primary" style="background-color: #DE9151;">Send Invite</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Wishlist Modal -->
 <div class="modal fade" id="wishlistModal" tabindex="-1" aria-labelledby="wishlistModalLabel" aria-hidden="true">
