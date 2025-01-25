@@ -76,6 +76,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event_id'])) {
                 <i class='fas fa-user-plus'></i> Invite People
             </button>";
 
+            // "Manage wishlist" button
+            echo "<button 
+        type='button' 
+        class='btn btn-success mt-2 ml-2' 
+        onclick='openWishlistModal(" . htmlspecialchars($event['id_event']) . ")'>
+        <i class='fas fa-list'></i> Manage Wishlist
+      </button>";
+
             // "Edit Event" button
             echo "<a href='editEvent.php?id=" . urlencode($event['id_event']) . "' class='btn btn-secondary mt-2 ml-2'>
                 <i class='fas fa-edit'></i> Edit Event
