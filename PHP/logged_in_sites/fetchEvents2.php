@@ -88,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event_id'])) {
                 <i class='fas fa-trash'></i> Delete Event
             </button>
         </form>";
-    
 
             echo "</div>";
         }
