@@ -36,7 +36,7 @@ try {
         $stmt->execute([':user_id' => $userId, ':event_id' => $eventId]);
 
         // Refresh the page to reflect changes
-        header("Location: wishlist.php");
+        header("Location: wishlist_events.php");
         exit;
     }
 
