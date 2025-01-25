@@ -17,6 +17,7 @@ try {
 
     $eventId = $data["event_id"];
     $email = $data["email"];
+    $includeWishlist = $data['include_wishlist'] ?? false;
     $username = $_SESSION["username"];
 
     // Database connection
@@ -95,8 +96,25 @@ try {
         ":invite_expire" => $inviteExpire,
     ]);
 
+    // Fetch the wishlist if requested
+    $wishlistHtml = "";
+    if ($includeWishlist) {
+        $stmt = $pdo->prepare("SELECT wishes FROM gift_wishlists WHERE id_event = :event_id");
+        $stmt->execute([':event_id' => $eventId]);
+        $wishlist = $stmt->fetchColumn();
+        $wishlistItems = $wishlist ? json_decode($wishlist, true) : [];
+
+        if (!empty($wishlistItems)) {
+            $wishlistHtml = "<h3>Wishlist Items:</h3><ul>";
+            foreach ($wishlistItems as $item) {
+                $wishlistHtml .= "<li>" . htmlspecialchars($item) . "</li>";
+            }
+            $wishlistHtml .= "</ul>";
+        }
+    }
+
     try {
-        sendInviteEmail($email, $inviteToken, "MMMinvite." . $username);
+        sendInviteEmail($email, $inviteToken, "MMMinvite." . $username, $wishlistHtml);
         echo json_encode(["success" => "Invite sent successfully."]);
     }
     catch (Exception $m) {

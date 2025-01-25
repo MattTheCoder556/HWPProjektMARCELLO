@@ -103,7 +103,6 @@ $sessionToken = $_SESSION['session_token'];
             <div class="modal-header" style="background-color: #F34213; color: white;">
                 <h5 class="modal-title" id="inviteModalLabel">Invite People to Event</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
             </div>
             <div class="modal-body">
                 <form id="inviteForm">
@@ -111,6 +110,12 @@ $sessionToken = $_SESSION['session_token'];
                         <div class="mb-3">
                             <label for="inviteEmail" class="form-label">Invitee's Email</label>
                             <input type="email" class="form-control" id="inviteEmail" name="email" placeholder="Enter email address" required>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="includeWishlistCheckbox">
+                            <label class="form-check-label" for="includeWishlistCheckbox">
+                                Include Wishlist in Invitation
+                            </label>
                         </div>
                     <div id="inviteMessage" class="text-danger" style="display: none;"></div>
                 </form>
@@ -179,6 +184,7 @@ $sessionToken = $_SESSION['session_token'];
             document.getElementById("eventId").value = eventId; // Set the event ID in the hidden field
             document.getElementById("inviteMessage").style.display = "none";
             document.getElementById("inviteEmail").value = "";
+            document.getElementById("includeWishlistCheckbox").checked = false;
             inviteModal.show();
         };
         // Close modal when the close button is clicked
@@ -193,6 +199,7 @@ $sessionToken = $_SESSION['session_token'];
         document.getElementById("sendInviteButton").addEventListener("click", async () => {
             const eventId = document.getElementById("eventId").value;
             const email = document.getElementById("inviteEmail").value;
+            const includeWishlist = document.getElementById("includeWishlistCheckbox").checked;
             if (!email) {
                 displayInviteMessage("Email is required.");
                 return;
@@ -203,7 +210,7 @@ $sessionToken = $_SESSION['session_token'];
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ event_id: eventId, email: email }),
+                    body: JSON.stringify({ event_id: eventId, email: email, include_wishlist: includeWishlist }),
                 });
                 const text = await response.text(); // Get raw text response
 

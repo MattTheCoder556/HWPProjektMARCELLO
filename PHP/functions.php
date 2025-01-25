@@ -362,7 +362,7 @@ function send_password_reset_email($email, $token)
 	}
 }
 
-function sendInviteEmail($email, $inviteToken, $inviter)
+function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml = "")
 {
     $mail = new PHPMailer(true);
 
@@ -409,6 +409,7 @@ function sendInviteEmail($email, $inviteToken, $inviter)
                 <p><a href='{$acceptLink}'>Accept Invitation</a></p>
                 <p><a href='{$declineLink}'>Decline Invitation</a></p>
                 <p><a href='{$dontKnowLink}'>Not Sure Yet</a></p>
+                {$wishlistHtml}
                 <p>Looking forward to seeing you!</p>
                 <p>Best Regards,</p>
                 <p>The MammaMiaMarcello Team</p>
@@ -424,6 +425,7 @@ function sendInviteEmail($email, $inviteToken, $inviter)
             Accept Invitation: {$acceptLink}\n\n
             Decline Invitation: {$declineLink}\n\n
             Not Sure Yet: {$dontKnowLink}\n\n
+            {$wishlistHtml}
             Looking forward to seeing you!\n\n
             Best Regards,\n
             The MammaMiaMarcello Team
