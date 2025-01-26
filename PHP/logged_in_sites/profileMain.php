@@ -167,7 +167,6 @@ $sessionToken = $_SESSION['session_token'];
         fetchEvents();
         fetchEvents2();
 
-
         // Constants
         const inviteModalElement = document.getElementById("inviteModal");
         const inviteModal = new bootstrap.Modal(inviteModalElement);
@@ -379,7 +378,7 @@ $sessionToken = $_SESSION['session_token'];
 
 async function fetchUserProfile() {
     try {
-        const url = 'http://localhost/HWPProjektMARCELLO/PHP/api.php?action=getUserProfile&session_token=' + encodeURIComponent('<?php echo $sessionToken; ?>');
+        const url = 'http://localhost/HWP_2024/MammaMiaMarcello/PHP/api.php?action=getUserProfile&session_token=' + encodeURIComponent('<?php echo $sessionToken; ?>');
         // console.log('Requesting: ' + url);
         const response = await fetch(url);
         // console.log('Raw Response: ', response);

@@ -11,6 +11,9 @@ header("Access-Control-Allow-Headers: Content-Type");
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Start output buffering to manage headers and content
+ob_start();
+
 // Read the input data
 if ($_SERVER['CONTENT_TYPE'] === 'application/json') {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -21,16 +24,9 @@ if ($_SERVER['CONTENT_TYPE'] === 'application/json') {
     $password = $_POST['password'] ?? '';
 }
 
-
-
-
 // Validate input
 if (empty($username) || empty($password)) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Both fields are required to login.'
-    ]);
-    exit();
+    displayErrorAndExit("Both fields are required to login.");
 }
 
 if ($username === 'admin@mmm.com' && $password === 'admin') {
@@ -48,24 +44,23 @@ try {
     $result = loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass);
 
     if ($result['success']) {
-        echo json_encode([
-            'success' => true,
-            'message' => 'Login successful!',
-        ]);
-        if($_SERVER['CONTENT_TYPE'] !== 'application/json'){
-            header('Location: ./index.php');
-        }
+        // Redirect if login is successful
+        header('Location: ./index.php');
+        exit;
     } else {
-        echo json_encode([
-            'success' => false,
-            'message' => $result['message'] ?? 'Invalid credentials.'
-        ]);
+        displayErrorAndExit($result['message'] ?? 'Invalid credentials.');
     }
 } catch (Exception $e) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred: ' . $e->getMessage()
-    ]);
+    displayErrorAndExit('An error occurred: ' . $e->getMessage());
 }
 
-exit();
+// Function to display an error message as a popup
+function displayErrorAndExit($errorMessage) {
+    ob_clean(); // Clear any output
+    echo "<script>
+        alert('" . addslashes($errorMessage) . "');
+        window.history.back(); // Go back to the previous page
+    </script>";
+    exit();
+}
+?>
