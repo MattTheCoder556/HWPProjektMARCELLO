@@ -18,6 +18,7 @@ try {
     $eventId = $data["event_id"];
     $email = $data["email"];
     $includeWishlist = $data['include_wishlist'] ?? false;
+    $template_data = $data["template_data"];
     $username = $_SESSION["username"];
 
     // Database connection
@@ -25,6 +26,28 @@ try {
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
+
+    // Check for template data
+    if (empty($template_data['event_name'])) {
+        echo json_encode(["error" => "Event name is required."]);
+        exit;
+    }
+
+    if (empty($template_data['event_description'])) {
+        echo json_encode(["error" => "Event description is required."]);
+        exit;
+    }
+
+    if (empty($template_data['background_color'])) {
+        echo json_encode(["error" => "Background color is required."]);
+        exit;
+    }
+
+    if (empty($template_data['color'])) {
+        echo json_encode(["error" => "Font color is required."]);
+        exit;
+    }
+
 
     // Check if the email exists
     $stmt = $pdo->prepare("SELECT id_user FROM users WHERE username = :email");
@@ -114,7 +137,7 @@ try {
     }
 
     try {
-        sendInviteEmail($email, $inviteToken, "MMMinvite." . $username, $wishlistHtml);
+        sendInviteEmail($email, $inviteToken, "MMMinvite." . $username, $wishlistHtml, $template_data);
         echo json_encode(["success" => "Invite sent successfully."]);
     }
     catch (Exception $m) {

@@ -362,7 +362,7 @@ function send_password_reset_email($email, $token)
 	}
 }
 
-function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml = "")
+function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml = "", $templateData): void
 {
     $mail = new PHPMailer(true);
 
@@ -370,6 +370,7 @@ function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml = "")
     {
         // Gábor part
         $mail->isSMTP();
+        $mail->CharSet = 'UTF-8';
         $mail->Host = 'sandbox.smtp.mailtrap.io';
         $mail->SMTPAuth = true;
         $mail->Port = 2525;
@@ -379,6 +380,7 @@ function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml = "")
         // Máté part
         /*
         $mail->isSMTP();
+        $mail->CharSet = 'UTF-8';
         $mail->Host = 'sandbox.smtp.mailtrap.io';
         $mail->SMTPAuth = true;
         $mail->Port = 2525;
@@ -388,6 +390,14 @@ function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml = "")
 
         $mail->setFrom('mmminvite.noreply@gmail.com', $inviter);
         $mail->addAddress($email);
+
+        // Fetch template data
+        $eventName = $templateData['event_name'] ?? "Event Name";
+        $eventDescription = $templateData['event_description'] ?? "Event Description";
+        $backgroundColor = $templateData['background_color'] ?? "#ffffff";
+        $fontColor = $templateData['color'] ?? "#000000";
+        $externalLink = $templateData['external_link'] ?? "";
+        $imageUrl = $templateData['uploaded_image_url'] ?? "";
 
         // Invitation links (Gábor)
         $acceptLink = "http://localhost/HWPProjektMARCELLO/PHP/logged_in_sites/invitation_statusHandler.php?action=accept&token={$inviteToken}";
@@ -402,31 +412,42 @@ function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml = "")
         $mail->Subject = "You have been invited to an event!";
         $mail->Body = "
             <html lang='en'>
-            <body>
-                <h2>You are invited to a special event!</h2>
-                <p>We are excited to invite you to join us for a memorable event.</p>
-                <p>To RSVP, please click one of the options below:</p>
-                <p><a href='{$acceptLink}'>Accept Invitation</a></p>
-                <p><a href='{$declineLink}'>Decline Invitation</a></p>
-                <p><a href='{$dontKnowLink}'>Not Sure Yet</a></p>
+            <body style='background-color: {$backgroundColor}; font-family: Arial, sans-serif; color: {$fontColor}; padding: 20px;'>
+                <h2 style='color: {$fontColor}; text-align: center;'>{$eventName}</h2>
+                <p style='font-size: 16px;'>{$eventDescription}</p>
+                " . ($externalLink ? "<p><a href='{$externalLink}' style='color: {$fontColor};'>Visit the extra link</a></p>" : "") . "
+                <div style='text-align: center; margin-top: 40px;'>
+                    " . ($imageUrl ? "<img src='{$imageUrl}' alt='Event Image' style='max-width: 100%; border-radius: 8px; margin-bottom: 20px;' />" : "") . "
+                </div>
+                <p style='font-size: 16px;'>To RSVP, please click one of the options below:</p>
+                <p style='text-align: center; margin-bottom: 60px; margin-top: 20px;'>
+                    <a href='{$acceptLink}' style='text-decoration: none; color: white; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px;'>Accept Invitation</a>
+                </p>
+                <p style='text-align: center; margin-bottom: 60px;'>
+                    <a href='{$declineLink}' style='text-decoration: none; color: white; background-color: #f44336; padding: 10px 20px; border-radius: 5px;'>Decline Invitation</a>
+                </p>
+                <p style='text-align: center; margin-bottom: 60px;'>
+                    <a href='{$dontKnowLink}' style='text-decoration: none; color: white; background-color: #FF9800; padding: 10px 20px; border-radius: 5px;'>Not Sure Yet</a>
+                </p>
                 {$wishlistHtml}
-                <p>Looking forward to seeing you!</p>
+                <p style='margin-top: 20px;'>Looking forward to seeing you!</p>
                 <p>Best Regards,</p>
                 <p>The MammaMiaMarcello Team</p>
             </body>
-            </html>
-        ";
+            </html>";
 
         // Plain text version of the email (alternative body)
         $mail->AltBody = "
             You are invited to a special event!\n\n
-            We are excited to invite you to join us for a memorable event.\n\n
-            To RSVP, please click one of the options below:\n\n
-            Accept Invitation: {$acceptLink}\n\n
-            Decline Invitation: {$declineLink}\n\n
-            Not Sure Yet: {$dontKnowLink}\n\n
-            {$wishlistHtml}
-            Looking forward to seeing you!\n\n
+            {$eventName}\n
+            {$eventDescription}\n
+            " . ($externalLink ? "Visit the event link: {$externalLink}\n" : "") . "
+            To RSVP, please click one of the options below:\n
+            Accept Invitation: {$acceptLink}\n
+            Decline Invitation: {$declineLink}\n
+            Not Sure Yet: {$dontKnowLink}\n
+            {$wishlistHtml}\n
+            Looking forward to seeing you!\n
             Best Regards,\n
             The MammaMiaMarcello Team
         ";

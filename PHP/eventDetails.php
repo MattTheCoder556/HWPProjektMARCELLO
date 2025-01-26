@@ -25,7 +25,7 @@ try {
     $baseURL2 = "http://localhost/HWP_2024/MammaMiaMarcello/PHP";
 
     // Fetch event details
-    $eventResponse = @file_get_contents($baseURL2 . "/api.php?action=getEvent&id=" . $eventId);
+    $eventResponse = @file_get_contents($baseURL1 . "/api.php?action=getEvent&id=" . $eventId);
     if ($eventResponse === false) {
         throw new Exception('Failed to fetch event details');
     }
@@ -172,7 +172,6 @@ try {
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span>
                                         <strong><?= htmlspecialchars($person['firstname'] . ' ' . $person['lastname']) ?></strong>
-                                        (<?= htmlspecialchars($person['username']) ?>)
                                     </span>
                             <span class="badge bg-secondary"><?= htmlspecialchars($person['status'] ?? "pending") ?></span>
                         </li>
