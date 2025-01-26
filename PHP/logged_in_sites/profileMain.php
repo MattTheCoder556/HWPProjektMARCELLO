@@ -378,7 +378,10 @@ $sessionToken = $_SESSION['session_token'];
 
 async function fetchUserProfile() {
     try {
-        const url = 'http://localhost/HWP_2024/MammaMiaMarcello/PHP/api.php?action=getUserProfile&session_token=' + encodeURIComponent('<?php echo $sessionToken; ?>');
+        const baseurl1 = 'http://localhost/HWPProjektMarcello/PHP';
+        const baseurl2 = 'http://localhost/HWP_2024/MammaMiaMarcello/PHP';
+
+        const url = baseurl1 + '/api.php?action=getUserProfile&session_token=' + encodeURIComponent('<?php echo $sessionToken; ?>');
         // console.log('Requesting: ' + url);
         const response = await fetch(url);
         // console.log('Raw Response: ', response);

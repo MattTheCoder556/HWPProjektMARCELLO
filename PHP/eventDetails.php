@@ -18,11 +18,14 @@ try {
     $event = null;
     $comments = [];
     $userId = null;
+    $isSignedUp = false;
+    $isWishlisted = false;
 
-    $baseURL = "http://localhost/HWP_2024/MammaMiaMarcello/PHP";
+    $baseURL1 = "http://localhost/HWPProjektMarcello/PHP";
+    $baseURL2 = "http://localhost/HWP_2024/MammaMiaMarcello/PHP";
 
     // Fetch event details
-    $eventResponse = @file_get_contents($baseURL . "/api.php?action=getEvent&id=" . $eventId);
+    $eventResponse = @file_get_contents($baseURL1 . "/api.php?action=getEvent&id=" . $eventId);
     if ($eventResponse === false) {
         throw new Exception('Failed to fetch event details');
     }
@@ -45,6 +48,35 @@ try {
         } else {
             throw new Exception('Invalid session or session expired');
         }
+
+        // Check if the user is signed up for the event
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM event_signups WHERE event_id = :event_id AND user_id = :user_id");
+        $stmt->execute(['event_id' => $eventId, 'user_id' => $userId]);
+        $isSignedUp = $stmt->fetchColumn() > 0;
+
+        // Check if the user has wishlisted the event
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM event_wishlists WHERE id_event = :event_id AND id_user = :user_id");
+        $stmt->execute(['event_id' => $eventId, 'user_id' => $userId]);
+        $isWishlisted = $stmt->fetchColumn() > 0;
+
+        // Fetch invited people and their statuses
+        $filterStatus = $_GET['status'] ?? null;
+        $query = "
+            SELECT u.username, u.firstname, u.lastname, i.status 
+            FROM event_invites i
+            JOIN users u ON i.id_user = u.id_user
+            WHERE i.id_event = :event_id
+        ";
+        if ($filterStatus) {
+            $query .= " AND i.status = :status";
+        }
+        $stmt = $pdo->prepare($query);
+        $params = [':event_id' => $eventId];
+        if ($filterStatus) {
+            $params[':status'] = $filterStatus;
+        }
+        $stmt->execute($params);
+        $invitedPeople = $stmt->fetchAll();
 
         // Fetch comments for the event
         $stmt = $pdo->prepare("
@@ -91,6 +123,65 @@ try {
                 </div>
             </div>
         </div>
+
+        <!-- Display sign-up and wishlist buttons -->
+        <div class="row">
+            <div class="col-12 text-center">
+                <?php if (isset($_SESSION['session_token'])): ?>
+                <?php if (!$isSignedUp): ?>
+                    <form method="POST" action="logged_in_sites/signUp.php">
+                        <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
+                        <button type="submit" class="btn btn-primary">Sign Up for Event</button>
+                    </form>
+                <?php endif; ?>
+                    <?php if (!$isWishlisted): ?>
+                        <form method="POST" action="logged_in_sites/add_to_event_wishlist.php" class="mt-3">
+                            <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
+                            <button type="submit" class="btn btn-secondary">Add to Wishlist</button>
+                        </form>
+                    <?php else: ?>
+                        <button class="btn btn-success mt-3" disabled>Already in Wishlist</button>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <a href="login.php" class="btn btn-warning">Login to Sign Up or Add to Wishlist</a>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Display invited people and their status for logged-in users -->
+        <?php if (isset($_SESSION['session_token'])): ?>
+        <div class="row mt-5">
+            <div class="col-12">
+                <div style="text-align: center">
+                    <h3 style="background-color: #BBB8B2; color: #BC5D2E; border-radius: 5px; width: 50%; padding: 1rem; margin: 0 auto; margin-bottom: 1rem;">Invited People</h3>
+                </div>
+                <form method="GET" class="mb-3">
+                    <input type="hidden" name="id" value="<?= htmlspecialchars($eventId) ?>">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">All</option>
+                        <option value="accepted" <?= $filterStatus === "accepted" ? "selected" : "" ?>>Accepted</option>
+                        <option value="declined" <?= $filterStatus === "declined" ? "selected" : "" ?>>Declined</option>
+                        <option value="dontknow" <?= $filterStatus === "dontknow" ? "selected" : "" ?>>Doesn't Know</option>
+                    </select>
+                </form>
+                <?php if (!empty($invitedPeople)): ?>
+                <ul class="list-group">
+                    <?php foreach ($invitedPeople as $person): ?>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <strong><?= htmlspecialchars($person['firstname'] . ' ' . $person['lastname']) ?></strong>
+                                        (<?= htmlspecialchars($person['username']) ?>)
+                                    </span>
+                            <span class="badge bg-secondary"><?= htmlspecialchars($person['status'] ?? "pending") ?></span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+                <?php else: ?>
+                    <p>No invited people found.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <!-- Comment Section -->
         <?php if (isset($_SESSION['session_token'])): ?>
