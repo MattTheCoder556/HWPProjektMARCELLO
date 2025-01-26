@@ -28,7 +28,17 @@ $user = $_SESSION['username']; // Assuming user is logged in and session contain
 // Check if the 'public' checkbox was checked and set the value accordingly
 $public = isset($_POST['public']) ? 1 : 0;
 
-var_dump($user);
+// Fetch the user_id for the current username
+$stmt = $pdo->prepare("SELECT id_user FROM users WHERE username = :username");
+$stmt->execute([':username' => $user]);
+$userID = $stmt->fetchColumn();
+
+// Check if user exists
+if (!$userID) {
+    $_SESSION['message'] = "User does not exist!";
+    header("Location: eventMaker.php");
+    exit;
+}
 
 // Check if file upload is valid and process the image
 if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
@@ -92,20 +102,7 @@ if ($endDate < $startDate) {
 }
 
 try {
-    // Check if the user exists in the users table
-    $stmt = $pdo->prepare("SELECT id_user FROM users WHERE username = :user");
-    $stmt->execute([':user' => $user]);
-    $userExists = $stmt->fetchColumn();
-    var_dump($userExists);
-
-    // If the user does not exist, return an error message
-    if (!$userExists) {
-        $_SESSION['message'] = "User does not exist!";
-        echo "Error: User does not exist!";
-        exit; // Stop further execution
-    }
-
-    // If the user exists, proceed with inserting the event data
+    // Insert event data into the database
     $stmt = $pdo->prepare("INSERT INTO events (event_pic, event_name, attendees, event_type, start_date, end_date, description, place, owner, public)
                            VALUES (:eventPic, :eventName, :attendees, :eventType, :startDate, :endDate, :description, :place, :owner, :public)");
 
@@ -118,15 +115,22 @@ try {
         ':endDate' => $endDate,
         ':description' => $eventDesc,
         ':place' => $eventAddress,
-        ':owner' => $userExists,
-        ':public' => $public // Pass the value of the public checkbox
+        ':owner' => $userID,  // Use the user ID as the owner
+        ':public' => $public  // Pass the value of the public checkbox
     ]);
 
+    // Retrieve the ID of the newly inserted event
+    $eventID = $pdo->lastInsertId();  // This will give the last inserted row ID
+
+    // Store a message indicating success
     $_SESSION['message'] = "Event created successfully!";
-    header('Location: ../availableEvents.php');
-    echo 'Successfully uploaded!';
+
+    // Redirect to the event details or invitation page
+    header('Location: invitationMaker.php?id=' . $eventID); // Redirect to the invitation maker with the event ID
+    exit;
+
 } catch (PDOException $e) {
-    // Catch any PDO errors and show them
+    // Catch any errors and display the message
     $_SESSION['message'] = "Error: " . $e->getMessage();
     echo 'Error: ' . $e->getMessage();
 }

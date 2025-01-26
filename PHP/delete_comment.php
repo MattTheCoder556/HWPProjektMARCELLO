@@ -1,35 +1,48 @@
 <?php
 require_once 'config.php';
+session_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment_id'])) {
-    $commentId = $_POST['comment_id'];
-
-    try {
-        session_start();
-        $sessionToken = $_SESSION['session_token'] ?? null;
-
-        if ($sessionToken) {
-            $stmt = $pdo->prepare("SELECT id_user FROM session_tokens WHERE token = :session_token AND expiry_date > NOW()");
-            $stmt->execute([':session_token' => $sessionToken]);
-            $user = $stmt->fetch();
-
-            if ($user) {
-                $userId = $user['id_user'];
-
-                // Delete comment if the logged-in user is the author
-                $stmt = $pdo->prepare("DELETE FROM event_comments WHERE id_comment = :comment_id AND user_id = :user_id");
-                $stmt->execute([':comment_id' => $commentId, ':user_id' => $userId]);
-
-                if ($stmt->rowCount() > 0) {
-                    header("Location: eventDetails.php?id=" . $_POST['event_id']);
-                    exit;
-                } else {
-                    throw new Exception("You can only delete your own comments.");
-                }
-            }
-        }
-    } catch (Exception $e) {
-        echo "Error: " . htmlspecialchars($e->getMessage());
-    }
+if (!isset($_SESSION['session_token'])) {
+    header('Location: login.php');
+    exit;
 }
-?>
+
+try {
+    // Retrieve the logged-in user's ID
+    $sessionToken = $_SESSION['session_token'];
+    $stmt = $pdo->prepare("SELECT id_user FROM session_tokens WHERE token = :session_token AND expiry_date > NOW()");
+    $stmt->execute([':session_token' => $sessionToken]);
+    $user = $stmt->fetch();
+
+    if (!$user) {
+        throw new Exception('Invalid session or session expired.');
+    }
+
+    $userId = $user['id_user'];
+
+    // Get the comment ID from POST
+    $commentId = $_POST['comment_id'] ?? null;
+
+    if (!$commentId) {
+        throw new Exception('Comment ID is required.');
+    }
+
+    // Check if the comment belongs to the user
+    $stmt = $pdo->prepare("SELECT user_id FROM event_comments WHERE id_comment = :comment_id");
+    $stmt->execute([':comment_id' => $commentId]);
+    $comment = $stmt->fetch();
+
+    if (!$comment || $comment['user_id'] != $userId) {
+        throw new Exception('You can only delete your own comments.');
+    }
+
+    // Delete the comment
+    $stmt = $pdo->prepare("DELETE FROM event_comments WHERE id_comment = :comment_id");
+    $stmt->execute([':comment_id' => $commentId]);
+
+    // Redirect back to the event details page
+    header('Location: eventDetails.php?id=' . $_GET['event_id']);
+    exit;
+} catch (Exception $e) {
+    echo 'Error: ' . htmlspecialchars($e->getMessage());
+}

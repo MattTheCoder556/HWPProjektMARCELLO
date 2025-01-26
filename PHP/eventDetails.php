@@ -25,7 +25,7 @@ try {
     $baseURL2 = "http://localhost/HWP_2024/MammaMiaMarcello/PHP";
 
     // Fetch event details
-    $eventResponse = @file_get_contents($baseURL1 . "/api.php?action=getEvent&id=" . $eventId);
+    $eventResponse = @file_get_contents($baseURL2 . "/api.php?action=getEvent&id=" . $eventId);
     if ($eventResponse === false) {
         throw new Exception('Failed to fetch event details');
     }
@@ -79,15 +79,17 @@ try {
         $invitedPeople = $stmt->fetchAll();
 
         // Fetch comments for the event
-        $stmt = $pdo->prepare("
-            SELECT c.id_comment, c.comment_text, c.rating, c.user_id, u.username, c.created_at
+        // Fetch comments for the event
+            $stmt = $pdo->prepare("
+            SELECT c.id_comment, c.comment_text, c.rating, c.created_at, c.user_id, u.username
             FROM event_comments c
             JOIN users u ON c.user_id = u.id_user
             WHERE c.event_id = :event_id
             ORDER BY c.created_at DESC
-        ");
-        $stmt->execute([':event_id' => $eventId]);
-        $comments = $stmt->fetchAll();
+            ");
+            $stmt->execute([':event_id' => $eventId]);
+            $comments = $stmt->fetchAll();
+
     }
 } catch (Exception $e) {
     echo "Error: " . htmlspecialchars($e->getMessage());
@@ -232,14 +234,6 @@ try {
             </div>
         <?php endif; ?>
     </div>
-    <div class="chat-box">
-    <h4>Live Chat with Event Owner</h4>
-    <div id="chat-messages" class="chat-messages"></div>
-    <form id="chat-form">
-        <input type="text" id="chat-input" placeholder="Type your message..." required>
-        <button type="submit" class="btn btn-primary">Send</button>
-    </form>
-</div>
     <?php include_once 'footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -119,6 +119,7 @@ include_once "../functions.php";
         <input type="reset" value="Cancel">
     </form>
 
+
     <script>
         function showInput() {
             const dropdown = document.getElementById('typ');
