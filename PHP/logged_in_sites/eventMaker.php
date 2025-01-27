@@ -112,7 +112,12 @@ include_once "../functions.php";
         <div class="chckboxDiv">
         <label for="public" class="chckboxLabel">Public event?</label>
         <input type="checkbox" name="public" id="pub" class="chckbox">
+        <br>
+        <label for="commentsEnabled">Enable Comments:</label>
+        <input type="checkbox" id="commentsEnabled" name="comments_enabled" value="1" <?= isset($event['comments_enabled']) && $event['comments_enabled'] ? 'checked' : '' ?>>
         </div>
+
+
         <br><br>
 
         <input type="submit" value="Send">

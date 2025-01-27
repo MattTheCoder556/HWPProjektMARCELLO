@@ -25,12 +25,12 @@ try {
     $baseURL2 = "http://localhost/HWP_2024/MammaMiaMarcello/PHP";
 
     // Fetch event details
-    $eventResponse = @file_get_contents($baseURL1 . "/api.php?action=getEvent&id=" . $eventId);
+    $eventResponse = @file_get_contents($baseURL2 . "/api.php?action=getEvent&id=" . $eventId);
     if ($eventResponse === false) {
         throw new Exception('Failed to fetch event details');
     }
     $event = json_decode($eventResponse, true);
-
+    $commentsEnabled = $event['comments_enabled'];
     if (isset($event['error'])) {
         throw new Exception($event['error']);
     }
@@ -185,7 +185,7 @@ try {
         <?php endif; ?>
 
         <!-- Comment Section -->
-        <?php if (isset($_SESSION['session_token'])): ?>
+        <?php if (isset($_SESSION['session_token']) && $commentsEnabled): ?>
             <div class="row mt-5">
                 <div class="col-12">
                     <h3>Comments</h3>
@@ -231,6 +231,8 @@ try {
                     <?php endif; ?>
                 </div>
             </div>
+        <?php else: ?>
+            <p>Comments are dissabled in this event.</p>
         <?php endif; ?>
     </div>
     <?php include_once 'footer.php'; ?>

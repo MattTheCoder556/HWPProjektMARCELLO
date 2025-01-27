@@ -93,6 +93,10 @@ $sessionToken = $_SESSION['session_token'];
     </div>
     <div class="text-center my-4">
     <a href="wishlist_events.php" class="btn btn-secondary">View My Wishlisted Events</a>
+    <div class="container my-5">
+    <a href="event_history.php" class="btn btn-info">View Event History</a>
+</div>
+
 </div>
 </div>
 
@@ -212,7 +216,7 @@ $sessionToken = $_SESSION['session_token'];
 
 <!-- Footer -->
 <footer class="p-3 text-center mt-5">
-    <p>&copy; 2024 My Profile Page</p>
+    <p>&copy; 2025 My Profile Page</p>
 </footer>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -590,7 +594,7 @@ async function fetchUserProfile() {
         const baseurl1 = 'http://localhost/HWPProjektMarcello/PHP';
         const baseurl2 = 'http://localhost/HWP_2024/MammaMiaMarcello/PHP';
 
-        const url = baseurl1 + '/api.php?action=getUserProfile&session_token=' + encodeURIComponent('<?php echo $sessionToken; ?>');
+        const url = baseurl2 + '/api.php?action=getUserProfile&session_token=' + encodeURIComponent('<?php echo $sessionToken; ?>');
         // console.log('Requesting: ' + url);
         const response = await fetch(url);
         // console.log('Raw Response: ', response);

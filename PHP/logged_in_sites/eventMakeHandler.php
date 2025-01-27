@@ -27,6 +27,8 @@ $user = $_SESSION['username']; // Assuming user is logged in and session contain
 
 // Check if the 'public' checkbox was checked and set the value accordingly
 $public = isset($_POST['public']) ? 1 : 0;
+$commentsEnabled = isset($_POST['comments_enabled']) ? 1 : 0;
+
 
 // Fetch the user_id for the current username
 $stmt = $pdo->prepare("SELECT id_user FROM users WHERE username = :username");
@@ -103,8 +105,8 @@ if ($endDate < $startDate) {
 
 try {
     // Insert event data into the database
-    $stmt = $pdo->prepare("INSERT INTO events (event_pic, event_name, attendees, event_type, start_date, end_date, description, place, owner, public)
-                           VALUES (:eventPic, :eventName, :attendees, :eventType, :startDate, :endDate, :description, :place, :owner, :public)");
+    $stmt = $pdo->prepare("INSERT INTO events (event_pic, event_name, attendees, event_type, start_date, end_date, description, place, owner, public, comments_enabled)
+                           VALUES (:eventPic, :eventName, :attendees, :eventType, :startDate, :endDate, :description, :place, :owner, :public, :comments)");
 
     $stmt->execute([
         ':eventPic' => $imagePath,
@@ -116,7 +118,8 @@ try {
         ':description' => $eventDesc,
         ':place' => $eventAddress,
         ':owner' => $userID,  // Use the user ID as the owner
-        ':public' => $public  // Pass the value of the public checkbox
+        ':public' => $public,  // Pass the value of the public checkbox
+        ':comments' => $commentsEnabled  // Pass the value of the comments_enabled checkbox
     ]);
 
     // Retrieve the ID of the newly inserted event
