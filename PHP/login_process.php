@@ -2,10 +2,11 @@
 require "config.php";
 require "functions.php";
 
-// Allow cross-origin requests
+// Allow cross-origin requests (for React Native and others)
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
+header('Content-Type: application/json'); // Always send JSON response
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
@@ -13,6 +14,9 @@ ini_set('display_errors', 1);
 
 // Start output buffering to manage headers and content
 ob_start();
+
+// Detect if the request is AJAX (i.e., from React Native or other AJAX clients)
+$isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
 
 // Read the input data
 if ($_SERVER['CONTENT_TYPE'] === 'application/json') {
@@ -26,17 +30,19 @@ if ($_SERVER['CONTENT_TYPE'] === 'application/json') {
 
 // Validate input
 if (empty($username) || empty($password)) {
-    displayErrorAndExit("Both fields are required to login.");
+    // Return JSON response for both web and mobile apps
+    echo json_encode(['success' => false, 'message' => 'Both fields are required to login.']);
+    exit();
 }
 
 if ($username === 'admin@mmm.com' && $password === 'admin') {
     // Set session variables for admin login
     $_SESSION['is_admin'] = true;
     $_SESSION['is_admin_u'] = 'admin';
-    
-    // Redirect to admin page
-    header('Location: logged_in_sites/admin/admin_dashboard.php');
-    exit;
+
+    // Return success response with message (for both AJAX and web)
+    echo json_encode(['success' => true, 'message' => 'Admin login successful.']);
+    exit();
 }
 
 try {
@@ -44,23 +50,19 @@ try {
     $result = loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass);
 
     if ($result['success']) {
-        // Redirect if login is successful
-        header('Location: ./index.php');
-        exit;
+        // Retrieve the userId from the result
+        $userId = $result['user_id'];
+
+        // Return success response with userId for both AJAX and web
+        echo json_encode(['success' => true, 'userId' => $userId]);
+        exit();
     } else {
-        displayErrorAndExit($result['message'] ?? 'Invalid credentials.');
+        // Return failure response with message for both AJAX and web
+        echo json_encode(['success' => false, 'message' => $result['message'] ?? 'Invalid credentials.']);
+        exit();
     }
 } catch (Exception $e) {
-    displayErrorAndExit('An error occurred: ' . $e->getMessage());
-}
-
-// Function to display an error message as a popup
-function displayErrorAndExit($errorMessage) {
-    ob_clean(); // Clear any output
-    echo "<script>
-        alert('" . addslashes($errorMessage) . "');
-        window.history.back(); // Go back to the previous page
-    </script>";
+    // Handle exception and return a JSON error response
+    echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
     exit();
 }
-?>

@@ -23,6 +23,10 @@ const Header = () => {
     navigation.navigate('RegisterScreen');
   };
 
+  const PlanEventNavigate = () => {
+    navigation.navigate('PlanEventScreen');
+  };
+
   const ProfileNavigate = () => {
     navigation.navigate('ProfileScreen'); // Navigate to Profile Screen when logged in
   };
@@ -96,8 +100,8 @@ const Header = () => {
                   <TouchableOpacity style={styles.dropdownItem} onPress={AvailableEventsNavigate}>
                     <Text style={styles.navLink}>Available Events</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.dropdownItem} onPress={toggleMenu}>
-                    <Text style={styles.navLink}>Site 2</Text>
+                  <TouchableOpacity style={styles.dropdownItem} onPress={PlanEventNavigate}>
+                    <Text style={styles.navLink}>Plan Your Event</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.dropdownItem} onPress={toggleMenu}>
                     <Text style={styles.navLink}>Site 3</Text>

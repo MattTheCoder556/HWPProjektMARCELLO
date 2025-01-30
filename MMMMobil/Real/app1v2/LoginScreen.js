@@ -17,55 +17,48 @@ const LoginScreen = ({ navigation }) => {
     password: '',
   });
 
-  const { setIsLoggedIn } = useContext(UserContext);  // Use setIsLoggedIn from context
+  const { setIsLoggedIn, setUserId } = useContext(UserContext);  // Get user context functions
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const HomeNavigate = () => {
-    navigation.navigate('HomeScreen');
-  };
-
-  const RegisterNavigate = () => {
-    navigation.navigate('RegisterScreen');
-  };
-
   const handleLogin = async () => {
     const { email, password } = formData;
-  
-    // Client-side validation
+
     if (!email || !password) {
       Alert.alert('Error', 'Both fields are required.');
       return;
     }
-  
-    try {
-      const response = await axios.post('http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/login_process.php', {
-        username: email,
-        password,
-      });
-      console.log(response.data);
 
-      // Check if the response is successful
+    try {
+      const response = await axios.post(
+        'http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/login_process.php',
+        { username: email, password }
+      );
+
+      console.log('Server response:', response.data); // Debugging
+
       if (response.data.success) {
-        // Update the context to set the user as logged in
         setIsLoggedIn(true);
+        setUserId(response.data.userId); // Store userId in context
+        console.log("User ID set in context:", response.data.userId); // Debugging
+
         Alert.alert('Success', 'Login successful!', [
-          { text: 'OK', onPress: () => HomeNavigate() },
+          { text: 'OK', onPress: () => navigation.navigate('HomeScreen') },
         ]);
       } else {
         Alert.alert('Error', response.data.message || 'Login failed.');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Login error:', error);
       Alert.alert('Error', 'An error occurred. Please try again.');
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={HomeNavigate} style={styles.backButton}>
+      <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')} style={styles.backButton}>
         <Text style={styles.backButtonText}>← Home</Text>
       </TouchableOpacity>
       <Text style={styles.title}>Login Form</Text>
@@ -101,7 +94,7 @@ const LoginScreen = ({ navigation }) => {
       </Text>
       <Text style={styles.footerText}>
         Don’t have an account?{' '}
-        <Text style={styles.link} onPress={RegisterNavigate}>
+        <Text style={styles.link} onPress={() => navigation.navigate('RegisterScreen')}>
           Register now!
         </Text>
       </Text>

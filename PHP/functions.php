@@ -133,6 +133,7 @@ function loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass)
                 $sessionToken = bin2hex(random_bytes(32));
                 $expiryDate = date("Y-m-d H:i:s", strtotime("+2 hours"));
                 $userId = $result['id_user'];
+				//echo $userId;
 
                 $stmt = $pdo->prepare("
                     INSERT INTO session_tokens (token, expiry_date, id_user) 
@@ -148,7 +149,8 @@ function loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass)
 
                 return [
                     'success' => true,
-                    'message' => 'Login successful!'
+                    'message' => 'Login successful!',
+					'user_id' => $userId,
                 ];
             } else {
                 return [

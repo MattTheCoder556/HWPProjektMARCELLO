@@ -5,10 +5,11 @@ export const UserContext = createContext();
 
 // Context provider component
 export const UserProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Default is false, indicating the user is not logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState(null); // Store userId
 
   return (
-    <UserContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+    <UserContext.Provider value={{ isLoggedIn, setIsLoggedIn, userId, setUserId }}>
       {children}
     </UserContext.Provider>
   );
