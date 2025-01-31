@@ -104,7 +104,7 @@ function registerUser( string $firstName, string $lastName, string $username, st
 	}
 }
 
-function loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass)
+function loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass): array
 {
     try {
         $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);

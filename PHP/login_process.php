@@ -55,6 +55,7 @@ try {
 
         // Return success response with userId for both AJAX and web
         echo json_encode(['success' => true, 'userId' => $userId]);
+        header("location: index.php");
         exit();
     } else {
         // Return failure response with message for both AJAX and web
