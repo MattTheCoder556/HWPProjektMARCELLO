@@ -7,7 +7,7 @@ header('Content-Type: application/json');
     II
     ˇˇ
  */
-header('Access-Control-Allow-Origin: *'); // Allows requests from any origin
+header('Access-Control-Allow-Origin: http://localhost:63342'); // Allows requests from any origin
 
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS'); // Allowed request methods
 header('Access-Control-Allow-Headers: Content-Type, Authorization'); // Allowed headers
@@ -238,39 +238,33 @@ function getUserProfile($pdo) {
 }
 
 /**
- * Fetch all invites for a given event.
+ * Fetch all invites sent by the logged-in user.
  */
-function getInvites($pdo) {
+function getInvites($pdo)
+{
     if (!isset($_SESSION['username'])) {
         echo json_encode(["error" => "User not authenticated"]);
         return;
     }
 
-    if (!isset($_GET['event_id'])) {
-        echo json_encode(["error" => "Event ID is required"]);
-        return;
-    }
-
-    $eventId = $_GET['event_id'];
     $invitedBy = $_SESSION['username'];
-
     try {
         $stmt = $pdo->prepare("
-            SELECT ei.id_event_invite, u.username, ei.status, ei.invited_by
+            SELECT ei.id_event_invite, ei.id_event, e.event_name, u.username, ei.status, ei.invited_by
             FROM event_invites ei
             JOIN users u ON ei.id_user = u.id_user
-            WHERE ei.id_event = :event_id
-            AND ei.invited_by = :invited_by
+            JOIN events e ON ei.id_event = e.id_event
+            WHERE ei.invited_by = :invited_by
         ");
-        $stmt->execute([
-            ':event_id' => $eventId,
-            ':invited_by' => $invitedBy
-        ]);
+        $stmt->execute([':invited_by' => $invitedBy]);
         $invites = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode($invites);
-    } catch (PDOException $e) {
+        return;
+    }
+    catch (PDOException $e) {
         echo json_encode(["error" => "Failed to fetch invites"]);
+        return;
     }
 }
 
@@ -286,19 +280,83 @@ function updateInvite($pdo) {
     }
 
     $inviteId = $data['id_event_invite'];
-    $status = $data['status'];
+    $newStatus = $data['status'];
+    $newEmail = $data['email'] ?? null;
+    $currentUserEmail = $_SESSION['username'] ?? null;
 
     try {
-        $stmt = $pdo->prepare("
-            UPDATE event_invites 
-            SET status = :status 
-            WHERE id_event_invite = :invite_id
-        ");
-        $stmt->execute([':status' => $status, ':invite_id' => $inviteId]);
+        // Fetch invite details, event owner email, and current invitee email
+        $stmt = $pdo->prepare("SELECT ei.status, ei.id_user, ei.id_event, ei.invited_by, 
+                                      e.owner AS event_owner_id, u.username AS invitee_email, 
+                                      ui.username AS owner_email 
+                               FROM event_invites ei
+                               JOIN events e ON ei.id_event = e.id_event
+                               JOIN users u ON ei.id_user = u.id_user
+                               JOIN users ui ON e.owner = ui.id_user
+                               WHERE ei.id_event_invite = :invite_id");
+        $stmt->execute([':invite_id' => $inviteId]);
+        $invite = $stmt->fetch();
 
-        echo json_encode(["success" => "Invite status updated"]);
-    } catch (PDOException $e) {
-        echo json_encode(["error" => "Failed to update invite"]);
+        if (!$invite) {
+            echo json_encode(["error" => "Invite not found"]);
+            return;
+        }
+
+        // Validate email format if provided
+        if ($newEmail && !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(["error" => "Invalid email format"]);
+            return;
+        }
+        
+        $currentStatus = $invite['status'];
+        $eventOwnerEmail = $invite['owner_email']; // Event owner's email (from the users table)
+        $inviteSenderEmail = $invite['invited_by']; // Inviter's email (from event_invites table)
+        $inviteeEmail = $invite['invitee_email']; // Current invitee's email (from the users table)
+
+        // Prevent modifying the invite if it's no longer "pending"
+        if ($currentStatus !== "pending" && $newStatus !== $currentStatus) {
+            echo json_encode(["error" => "Invite status can only be changed while it's still pending"]);
+            return;
+        }
+
+        // Prevent email changes if the status is not "pending"
+        if ($newEmail && $currentStatus !== "pending") {
+            echo json_encode(["error" => "Cannot modify invitee email unless the invite is still pending"]);
+            return;
+        }
+
+        // Prevent changing the email to the owner's email or the current user's email
+        if ($newEmail && ($newEmail === $eventOwnerEmail || $newEmail === $inviteSenderEmail || $newEmail === $currentUserEmail)) {
+            echo json_encode(["error" => "You cannot invite the event owner, neither yourself"]);
+            return;
+        }
+
+
+        // Fetch user ID by email to update in the event_invites table (for the new invitee)
+        $stmt = $pdo->prepare("SELECT id_user FROM users WHERE username = :email");
+        $stmt->execute([':email' => $newEmail]);
+        $newUser = $stmt->fetch();
+
+        if ($newEmail && !$newUser) {
+            echo json_encode(["error" => "User with this email does not exist"]);
+            return;
+        }
+
+        // Update the invite details
+        if ($newEmail) {
+            $stmt = $pdo->prepare("UPDATE event_invites SET status = :status, id_user = :user_id WHERE id_event_invite = :invite_id");
+            $stmt->execute([':status' => $newStatus, ':user_id' => $newUser['id_user'], ':invite_id' => $inviteId]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE event_invites SET status = :status WHERE id_event_invite = :invite_id");
+            $stmt->execute([':status' => $newStatus, ':invite_id' => $inviteId]);
+        }
+
+        echo json_encode(["success" => "Invite updated successfully"]);
+        return;
+    }
+    catch (PDOException $e) {
+        echo json_encode([ "error" => $e->getMessage() ]);
+        return;
     }
 }
 
@@ -320,7 +378,9 @@ function deleteInvite($pdo) {
         $stmt->execute([':invite_id' => $inviteId]);
 
         echo json_encode(["success" => "Invite deleted"]);
+        return;
     } catch (PDOException $e) {
         echo json_encode(["error" => "Failed to delete invite"]);
+        return;
     }
 }

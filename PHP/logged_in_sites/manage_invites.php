@@ -47,14 +47,11 @@ $sessionToken = $_SESSION['session_token'];
             </div>
             <div class="modal-body">
                 <input type="hidden" id="editInviteId">
+
+                <!-- Invitee Email -->
                 <div class="mb-3">
-                    <label for="editInviteStatus" class="form-label">Status</label>
-                    <select id="editInviteStatus" class="form-select">
-                        <option value="accepted">Accepted</option>
-                        <option value="declined">Declined</option>
-                        <option value="dontknow">Not Sure Yet</option>
-                        <option value="pending">Pending</option>
-                    </select>
+                    <label for="editInviteEmail" class="form-label">Invitee Email</label>
+                    <input type="email" id="editInviteEmail" class="form-control">
                 </div>
             </div>
             <div class="modal-footer">
@@ -64,6 +61,7 @@ $sessionToken = $_SESSION['session_token'];
         </div>
     </div>
 </div>
+
 <?php include_once "logged_footer.php"?>
 </body>
 <!-- Bootstrap Scripts -->
@@ -74,13 +72,10 @@ $sessionToken = $_SESSION['session_token'];
 
         async function fetchInvites() {
             try {
-                const eventId = 11;
-                const baseurl1 = 'http://localhost/HWPProjektMarcello/PHP/api/';
-                const baseurl2 = 'http://localhost/HWP_2024/MammaMiaMarcello/PHP/api/';
-                const response = await fetch(baseurl1 + 'getInvites?event_id=' + eventId);
+                const response = await fetch('../api.php?action=getInvites', { credentials: 'include' });
                 if (!response.ok) throw new Error("Failed to fetch invites.");
                 const invites = await response.json();
-                console.log("Fetched Invites:", invites);
+                //console.log("Fetched Invites:", invites);
                 renderInvites(invites);
             } catch (error) {
                 console.error("Error fetching invites:", error);
@@ -97,10 +92,10 @@ $sessionToken = $_SESSION['session_token'];
                     const row = document.createElement("tr");
                     row.innerHTML = `
                     <td>${invite.username}</td>
-                    <td><span class="badge bg-secondary">${invite.status || "Pending"}</span></td>
+                    <td><span class="badge bg-secondary" id="editInviteStatus">${invite.status || "Unknown"}</span></td>
                     <td>${invite.invited_by}</td>
                     <td>
-                        <button class="btn btn-sm btn-warning" onclick="openEditInviteModal(${invite.id_event_invite}, '${invite.status}')">
+                        <button class="btn btn-sm btn-warning" onclick="openEditInviteModal(${invite.id_event_invite}, '${invite.status}', '${invite.username}')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
                         <button class="btn btn-sm btn-danger" onclick="deleteInvite(${invite.id_event_invite})">
@@ -115,40 +110,46 @@ $sessionToken = $_SESSION['session_token'];
             }
         }
 
-        window.openEditInviteModal = function (inviteId, status) {
+        // Function to open the modal and pre-fill data
+        window.openEditInviteModal = function (inviteId, inviteStatus, inviteEmail) {
             document.getElementById("editInviteId").value = inviteId;
-            document.getElementById("editInviteStatus").value = status;
+            document.getElementById("editInviteEmail").value = inviteEmail;
+
+            // Only enable email field if status is "pending"
+            const editInviteStatus = document.getElementById("editInviteStatus");
+            if (editInviteStatus) {
+                document.getElementById("editInviteEmail").disabled = inviteStatus !== "pending";
+                editInviteStatus.disabled = true; // Disable the status dropdown
+            }
+
             new bootstrap.Modal(document.getElementById("editInviteModal")).show();
         };
 
-        document.getElementById("saveInviteChanges").addEventListener("click", async () => {
+        document.getElementById("saveInviteChanges").addEventListener("click", function () {
             const inviteId = document.getElementById("editInviteId").value;
-            const newStatus = document.getElementById("editInviteStatus").value;
+            const newEmail = document.getElementById("editInviteEmail").value;
+            const status = document.getElementById("editInviteStatus").textContent;
 
-            try {
-                const response = await fetch("api.php?action=updateInvite", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id_event_invite: inviteId, status: newStatus })
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    fetchInvites();
-                    bootstrap.Modal.getInstance(document.getElementById("editInviteModal")).hide();
-                } else {
-                    alert("Error updating invite: " + result.error);
-                }
-            } catch (error) {
-                console.error("Error updating invite:", error);
-            }
+            fetch('../api.php?action=updateInvite', {
+                credentials: 'include',
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id_event_invite: inviteId, status: status, email: newEmail })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.success || data.error);
+                    location.reload(); // Refresh the page to update the invite list
+                })
+                .catch(error => console.error("Error:", error));
         });
 
         window.deleteInvite = async function (inviteId) {
             if (!confirm("Are you sure you want to delete this invite?")) return;
 
             try {
-                const response = await fetch("api.php?action=deleteInvite", {
+                const response = await fetch('../api.php?action=deleteInvite', {
+                    credentials : 'include',
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ id_event_invite: inviteId })
