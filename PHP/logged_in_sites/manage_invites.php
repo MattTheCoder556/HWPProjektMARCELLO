@@ -126,6 +126,13 @@ $sessionToken = $_SESSION['session_token'];
         };
 
         document.getElementById("saveInviteChanges").addEventListener("click", function () {
+
+            const button = this;
+            const originalText = button.innerHTML;
+
+            button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...`;
+            button.disabled = true;
+            
             const inviteId = document.getElementById("editInviteId").value;
             const newEmail = document.getElementById("editInviteEmail").value;
             const status = document.getElementById("editInviteStatus").textContent;
@@ -141,7 +148,11 @@ $sessionToken = $_SESSION['session_token'];
                     alert(data.success || data.error);
                     location.reload(); // Refresh the page to update the invite list
                 })
-                .catch(error => console.error("Error:", error));
+                .catch(error => console.error("Error:", error))
+                .finally(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                });
         });
 
         window.deleteInvite = async function (inviteId) {

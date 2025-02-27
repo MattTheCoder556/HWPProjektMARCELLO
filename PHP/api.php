@@ -15,6 +15,7 @@ header('Access-Control-Allow-Credentials: true'); // If credentials (cookies) ar
 
 session_start();
 include 'config.php';
+include_once 'functions.php';
 
 try {
     $pdo = new PDO("mysql:host=" . $dbHost . ";dbname=" . $dbName, $dbUser, $dbPass, [
@@ -254,7 +255,7 @@ function getInvites($pdo)
             FROM event_invites ei
             JOIN users u ON ei.id_user = u.id_user
             JOIN events e ON ei.id_event = e.id_event
-            WHERE ei.invited_by = :invited_by
+            WHERE ei.invited_by = :invited_by AND ei.status = 'pending'
         ");
         $stmt->execute([':invited_by' => $invitedBy]);
         $invites = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -282,18 +283,34 @@ function updateInvite($pdo) {
     $inviteId = $data['id_event_invite'];
     $newStatus = $data['status'];
     $newEmail = $data['email'] ?? null;
-    $currentUserEmail = $_SESSION['username'] ?? null;
+    // Assuming the logged-in user's email (or username) is stored in session under 'user_email'
+    $currentUserEmail = $_SESSION['user_email'] ?? null;
+    // Optionally, you can accept template data as well
+    $templateData = $data['template_data'] ?? [];
 
     try {
-        // Fetch invite details, event owner email, and current invitee email
-        $stmt = $pdo->prepare("SELECT ei.status, ei.id_user, ei.id_event, ei.invited_by, 
-                                      e.owner AS event_owner_id, u.username AS invitee_email, 
-                                      ui.username AS owner_email 
-                               FROM event_invites ei
-                               JOIN events e ON ei.id_event = e.id_event
-                               JOIN users u ON ei.id_user = u.id_user
-                               JOIN users ui ON e.owner = ui.id_user
-                               WHERE ei.id_event_invite = :invite_id");
+        // Fetch invite details along with the event owner and current invitee information.
+        // Note that in your tables:
+        // - The event's owner is stored as an ID in the "events" table (owner column),
+        // - The invitee is stored by their ID in the "event_invites" table (id_user),
+        // - The inviter's username (email) is stored in the invited_by column,
+        // - The actual usernames (acting as emails) for invitee and owner are stored in the users table.
+        $stmt = $pdo->prepare("
+            SELECT 
+                ei.status, 
+                ei.id_user, 
+                ei.id_event, 
+                ei.invited_by, 
+                ei.invite_token,
+                e.owner AS event_owner_id, 
+                u.username AS invitee_email, 
+                ui.username AS owner_email 
+            FROM event_invites ei
+            JOIN events e ON ei.id_event = e.id_event
+            JOIN users u ON ei.id_user = u.id_user
+            JOIN users ui ON e.owner = ui.id_user
+            WHERE ei.id_event_invite = :invite_id
+        ");
         $stmt->execute([':invite_id' => $inviteId]);
         $invite = $stmt->fetch();
 
@@ -302,51 +319,63 @@ function updateInvite($pdo) {
             return;
         }
 
-        // Validate email format if provided
-        if ($newEmail && !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode(["error" => "Invalid email format"]);
-            return;
-        }
-        
         $currentStatus = $invite['status'];
-        $eventOwnerEmail = $invite['owner_email']; // Event owner's email (from the users table)
-        $inviteSenderEmail = $invite['invited_by']; // Inviter's email (from event_invites table)
-        $inviteeEmail = $invite['invitee_email']; // Current invitee's email (from the users table)
+        $eventOwnerEmail = $invite['owner_email'];       // owner's username (email)
+        $inviteSenderEmail = $invite['invited_by'];        // inviter's username (email)
+        $inviteeEmail = $invite['invitee_email'];          // current invitee's username (email)
+        $inviteToken = $invite['invite_token'];            // existing invite token
 
-        // Prevent modifying the invite if it's no longer "pending"
+        // Only allow status changes if the invite is still pending.
         if ($currentStatus !== "pending" && $newStatus !== $currentStatus) {
             echo json_encode(["error" => "Invite status can only be changed while it's still pending"]);
             return;
         }
 
-        // Prevent email changes if the status is not "pending"
+        // Prevent email changes if the invite is not pending.
         if ($newEmail && $currentStatus !== "pending") {
             echo json_encode(["error" => "Cannot modify invitee email unless the invite is still pending"]);
             return;
         }
 
-        // Prevent changing the email to the owner's email or the current user's email
+        // Prevent changing the email to that of the event owner, the inviter, or yourself.
         if ($newEmail && ($newEmail === $eventOwnerEmail || $newEmail === $inviteSenderEmail || $newEmail === $currentUserEmail)) {
-            echo json_encode(["error" => "You cannot invite the event owner, neither yourself"]);
+            echo json_encode(["error" => "Cannot invite the event owner, the sender, or yourself"]);
             return;
         }
 
-
-        // Fetch user ID by email to update in the event_invites table (for the new invitee)
-        $stmt = $pdo->prepare("SELECT id_user FROM users WHERE username = :email");
-        $stmt->execute([':email' => $newEmail]);
-        $newUser = $stmt->fetch();
-
-        if ($newEmail && !$newUser) {
-            echo json_encode(["error" => "User with this email does not exist"]);
+        // Validate email format if provided.
+        if ($newEmail && !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(["error" => "Invalid email format"]);
             return;
         }
 
-        // Update the invite details
+        // If a new email is provided, we need to update the invitee.
         if ($newEmail) {
+            // Retrieve the user ID corresponding to the new email (username)
+            $stmt = $pdo->prepare("SELECT id_user FROM users WHERE username = :email");
+            $stmt->execute([':email' => $newEmail]);
+            $newUser = $stmt->fetch();
+
+            if (!$newUser) {
+                echo json_encode(["error" => "User with this email does not exist"]);
+                return;
+            }
+
+            $newUserId = $newUser['id_user'];
+
+            // Update the invite record with the new status and new invitee (user ID)
             $stmt = $pdo->prepare("UPDATE event_invites SET status = :status, id_user = :user_id WHERE id_event_invite = :invite_id");
-            $stmt->execute([':status' => $newStatus, ':user_id' => $newUser['id_user'], ':invite_id' => $inviteId]);
+            $stmt->execute([
+                ':status' => $newStatus,
+                ':user_id' => $newUserId,
+                ':invite_id' => $inviteId
+            ]);
+
+            // Send invite email to the new invitee using your sendInviteEmail function.
+            // Here, we pass: new email, existing invite token, inviter, optional wishlist HTML (empty here), and template data.
+            sendInviteEmail($newEmail, $inviteToken, $inviteSenderEmail, "", $templateData);
         } else {
+            // If no new email is provided, update only the status.
             $stmt = $pdo->prepare("UPDATE event_invites SET status = :status WHERE id_event_invite = :invite_id");
             $stmt->execute([':status' => $newStatus, ':invite_id' => $inviteId]);
         }
@@ -355,10 +384,11 @@ function updateInvite($pdo) {
         return;
     }
     catch (PDOException $e) {
-        echo json_encode([ "error" => $e->getMessage() ]);
+        echo json_encode(["error" => $e->getMessage()]);
         return;
     }
 }
+
 
 /**
  * Delete an invitation.
@@ -374,7 +404,7 @@ function deleteInvite($pdo) {
     $inviteId = $data['id_event_invite'];
 
     try {
-        $stmt = $pdo->prepare("DELETE FROM event_invites WHERE id_event_invite = :invite_id");
+        $stmt = $pdo->prepare("UPDATE event_invites SET status = 'deleted' WHERE id_event_invite = :invite_id");
         $stmt->execute([':invite_id' => $inviteId]);
 
         echo json_encode(["success" => "Invite deleted"]);
