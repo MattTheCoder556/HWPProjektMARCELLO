@@ -5,6 +5,11 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 
 header('Content-Type: application/json');
 
+// Helper function to create URL-friendly version
+function createUrlFriendlyVersion($item) {
+    return preg_replace('/[^a-zA-Z0-9]+/', '-', strtolower(trim($item)));
+}
+
 try {
     $pdo = new PDO("mysql:host=" . $dbHost . ";dbname=" . $dbName, $dbUser, $dbPass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -32,25 +37,32 @@ try {
         // Add a wishlist item
         $data = json_decode(file_get_contents("php://input"), true);
         $eventId = $data['event_id'] ?? null;
-        $item = $data['item'] ?? null;
+        $item = trim($data['item'] ?? '');
 
         if (!$eventId || !$item) {
             throw new Exception("Event ID and item are required.");
         }
 
-        $stmt = $pdo->prepare("SELECT wishes FROM gift_wishlists WHERE id_event = :event_id");
+        // Get existing data
+        $stmt = $pdo->prepare("SELECT wishes, url_friendly_wishes FROM gift_wishlists WHERE id_event = :event_id");
         $stmt->execute([':event_id' => $eventId]);
-        $wishlist = $stmt->fetchColumn();
+        $current = $stmt->fetch();
 
-        $items = $wishlist ? json_decode($wishlist, true) : [];
+        $items = $current['wishes'] ? json_decode($current['wishes'], true) : [];
+        $urlItems = $current['url_friendly_wishes'] ? json_decode($current['url_friendly_wishes'], true) : [];
+
+        // Add new items
         $items[] = $item;
+        $urlItems[] = createUrlFriendlyVersion($item);
 
-        $stmt = $pdo->prepare("INSERT INTO gift_wishlists (id_event, wishes, chosen_gifts) 
-                               VALUES (:event_id, :wishes, '') 
-                               ON DUPLICATE KEY UPDATE wishes = :wishes");
+        // Update database
+        $stmt = $pdo->prepare("INSERT INTO gift_wishlists (id_event, wishes, url_friendly_wishes) 
+                               VALUES (:event_id, :wishes, :url_wishes) 
+                               ON DUPLICATE KEY UPDATE wishes = :wishes, url_friendly_wishes = :url_wishes");
         $stmt->execute([
             ':event_id' => $eventId,
             ':wishes' => json_encode($items),
+            ':url_wishes' => json_encode($urlItems)
         ]);
 
         echo json_encode(["success" => true]);
@@ -58,29 +70,40 @@ try {
         // Remove a wishlist item
         $data = json_decode(file_get_contents("php://input"), true);
         $eventId = $data['event_id'] ?? null;
-        $item = $data['item'] ?? null;
+        $item = trim($data['item'] ?? '');
 
         if (!$eventId || !$item) {
             throw new Exception("Event ID and item are required.");
         }
 
-        $stmt = $pdo->prepare("SELECT wishes FROM gift_wishlists WHERE id_event = :event_id");
+        // Get current data
+        $stmt = $pdo->prepare("SELECT wishes, url_friendly_wishes FROM gift_wishlists WHERE id_event = :event_id");
         $stmt->execute([':event_id' => $eventId]);
-        $wishlist = $stmt->fetchColumn();
+        $current = $stmt->fetch();
 
-        $items = $wishlist ? json_decode($wishlist, true) : [];
-        // Remove the item and reindex the array
-        $items = array_values(array_filter($items, fn($i) => $i !== $item));
+        $items = $current['wishes'] ? json_decode($current['wishes'], true) : [];
+        $urlItems = $current['url_friendly_wishes'] ? json_decode($current['url_friendly_wishes'], true) : [];
 
-        $stmt = $pdo->prepare("UPDATE gift_wishlists SET wishes = :wishes WHERE id_event = :event_id");
-        $stmt->execute([
-            ':wishes' => json_encode($items),
-            ':event_id' => $eventId
-        ]);
+        // Find and remove the item
+        $index = array_search($item, $items);
+        if ($index !== false) {
+            unset($items[$index]);
+            unset($urlItems[$index]);
+
+            // Reindex arrays
+            $items = array_values($items);
+            $urlItems = array_values($urlItems);
+
+            $stmt = $pdo->prepare("UPDATE gift_wishlists SET wishes = :wishes, url_friendly_wishes = :url_wishes WHERE id_event = :event_id");
+            $stmt->execute([
+                ':wishes' => json_encode($items),
+                ':url_wishes' => json_encode($urlItems),
+                ':event_id' => $eventId
+            ]);
+        }
 
         echo json_encode(["success" => true]);
-    }
-    else {
+    } else {
         throw new Exception("Invalid action.");
     }
 } catch (Exception $e) {

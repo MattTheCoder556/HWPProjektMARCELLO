@@ -18,6 +18,7 @@ try {
     $eventId = $data["event_id"];
     $email = $data["email"];
     $includeWishlist = $data['include_wishlist'] ?? false;
+    $wishlistData = $data['wishlist_data'] ?? null;
     $template_data = $data["template_data"];
     $username = $_SESSION["username"];
 
@@ -28,26 +29,19 @@ try {
     ]);
 
     // Check for template data
-    if (empty($template_data['event_name'])) {
-        echo json_encode(["error" => "Event name is required."]);
-        exit;
-    }
+    $requiredFields = [
+        'event_name' => "Event name is required.",
+        'event_description' => "Event description is required.",
+        'background_color' => "Background color is required.",
+        'color' => "Font color is required."
+    ];
 
-    if (empty($template_data['event_description'])) {
-        echo json_encode(["error" => "Event description is required."]);
-        exit;
+    foreach ($requiredFields as $field => $errorMessage) {
+        if (empty($template_data[$field])) {
+            echo json_encode(["error" => $errorMessage]);
+            exit;
+        }
     }
-
-    if (empty($template_data['background_color'])) {
-        echo json_encode(["error" => "Background color is required."]);
-        exit;
-    }
-
-    if (empty($template_data['color'])) {
-        echo json_encode(["error" => "Font color is required."]);
-        exit;
-    }
-
 
     // Check if the email exists
     $stmt = $pdo->prepare("SELECT id_user FROM users WHERE username = :email");
@@ -119,29 +113,37 @@ try {
         ":invite_expire" => $inviteExpire,
     ]);
 
-    // Fetch the wishlist if requested
-    $wishlistHtml = "";
+    // Prepare wishlist data for email
+    $wishlistItems = [];
     if ($includeWishlist) {
-        $stmt = $pdo->prepare("SELECT wishes FROM gift_wishlists WHERE id_event = :event_id");
-        $stmt->execute([':event_id' => $eventId]);
-        $wishlist = $stmt->fetchColumn();
-        $wishlistItems = $wishlist ? json_decode($wishlist, true) : [];
-
-        if (!empty($wishlistItems)) {
-            $wishlistHtml = "<h3>Wishlist Items:</h3><ul>";
-            foreach ($wishlistItems as $item) {
-                $wishlistHtml .= "<li>" . htmlspecialchars($item) . "</li>";
-            }
-            $wishlistHtml .= "</ul>";
+        if ($wishlistData && !empty($wishlistData['wishes'])) {
+            $wishlistItems = $wishlistData['wishes'];
+        } else {
+            $stmt = $pdo->prepare("SELECT wishes FROM gift_wishlists WHERE id_event = :event_id");
+            $stmt->execute([':event_id' => $eventId]);
+            $wishlist = $stmt->fetchColumn();
+            $wishlistItems = $wishlist ? json_decode($wishlist, true) : [];
         }
     }
 
+// JSON formátumban küldjük, nem HTML-ként
+    $wishlistHtml = json_encode($wishlistItems);
+
+    // Send the invitation email
     try {
-        sendInviteEmail($email, $inviteToken, "MMMinvite." . $username, $wishlistHtml, $template_data);
+        sendInviteEmail(
+            $email,
+            $inviteToken,
+            $username,
+            $wishlistHtml,
+            $template_data
+        );
+
         echo json_encode(["success" => "Invite sent successfully."]);
-    }
-    catch (Exception $m) {
-        echo json_encode(["error" => "An error occurred during sending the email: " . $m->getMessage()]);
+    } catch (Exception $e) {
+        // Delete the invite if email sending fails
+        $pdo->prepare("DELETE FROM event_invites WHERE invite_token = ?")->execute([$inviteToken]);
+        echo json_encode(["error" => "Failed to send invitation email: " . $e->getMessage()]);
     }
 } catch (Exception $e) {
     echo json_encode(["error" => "An error occurred: " . $e->getMessage()]);

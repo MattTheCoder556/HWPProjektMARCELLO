@@ -364,13 +364,24 @@ function send_password_reset_email($email, $token)
 	}
 }
 
-function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml = "", $templateData): void
+
+// Máté part
+/*
+$mail->isSMTP();
+$mail->CharSet = 'UTF-8';
+$mail->Host = 'sandbox.smtp.mailtrap.io';
+$mail->SMTPAuth = true;
+$mail->Port = 2525;
+$mail->Username = 'd4a04c8e5deb9e';
+$mail->Password = 'bde0a6f4e281eb';
+*/
+
+function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml, $templateData): void
 {
     $mail = new PHPMailer(true);
 
-    try
-    {
-        // Gábor part
+    try {
+        // SMTP Configuration (Gábor part)
         $mail->isSMTP();
         $mail->CharSet = 'UTF-8';
         $mail->Host = 'sandbox.smtp.mailtrap.io';
@@ -379,21 +390,10 @@ function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml = "", $te
         $mail->Username = 'ddd5c19228d753';
         $mail->Password = '138a3f6bfe0c20';
 
-        // Máté part
-        /*
-        $mail->isSMTP();
-        $mail->CharSet = 'UTF-8';
-        $mail->Host = 'sandbox.smtp.mailtrap.io';
-        $mail->SMTPAuth = true;
-        $mail->Port = 2525;
-        $mail->Username = 'd4a04c8e5deb9e';
-        $mail->Password = 'bde0a6f4e281eb';
-        */
-
         $mail->setFrom('mmminvite.noreply@gmail.com', $inviter);
         $mail->addAddress($email);
 
-        // Fetch template data
+        // Template data
         $eventName = $templateData['event_name'] ?? "Event Name";
         $eventDescription = $templateData['event_description'] ?? "Event Description";
         $backgroundColor = $templateData['background_color'] ?? "#ffffff";
@@ -401,63 +401,105 @@ function sendInviteEmail($email, $inviteToken, $inviter, $wishlistHtml = "", $te
         $externalLink = $templateData['external_link'] ?? "";
         $imageUrl = $templateData['uploaded_image_url'] ?? "";
 
-        // Invitation links (Gábor)
-        $acceptLink = "http://localhost/HWPProjektMARCELLO/PHP/logged_in_sites/invitation_statusHandler.php?action=accept&token={$inviteToken}";
-        $declineLink = "http://localhost/HWPProjektMARCELLO/PHP/logged_in_sites/invitation_statusHandler.php?action=decline&token={$inviteToken}";
-        $dontKnowLink = "http://localhost/HWPProjektMARCELLO/PHP/logged_in_sites/invitation_statusHandler.php?action=dontknow&token={$inviteToken}";
+        // Invitation links
+        $baseUrl = "http://localhost/HWPProjektMARCELLO/PHP/logged_in_sites/";
+        $acceptLink = $baseUrl . "invitation_statusHandler.php?action=accept&token={$inviteToken}";
+        $declineLink = $baseUrl . "invitation_statusHandler.php?action=decline&token={$inviteToken}";
+        $dontKnowLink = $baseUrl . "invitation_statusHandler.php?action=dontknow&token={$inviteToken}";
 
-        // Invitation links (Máté)
+        // Wishlist section - NEW IMPLEMENTATION
+        $formattedWishlist = "";
+        if (!empty($wishlistHtml)) {
+            // Check if we got the display items and URL items separately
+            if (isset($wishlistHtml['display_items']) && isset($wishlistHtml['url_items'])) {
+                $displayItems = $wishlistHtml['display_items'];
+                $urlItems = $wishlistHtml['url_items'];
+            }
+            // Legacy support for direct HTML or JSON array
+            else {
+                $wishlistItems = is_array($wishlistHtml) ? $wishlistHtml : json_decode($wishlistHtml, true);
+                $displayItems = $wishlistItems;
+                $urlItems = array_map(function($item) {
+                    return preg_replace('/[^a-zA-Z0-9]+/', '-', strtolower(trim($item)));
+                }, $wishlistItems);
+            }
 
+            if (!empty($displayItems)) {
+                $formattedWishlist = "<h3 style='color: {$fontColor};'>Gift Wishlist</h3>";
+                $formattedWishlist .= "<ul style='list-style-type: none; padding: 0;'>";
 
-        // HTML version of the email
+                foreach ($displayItems as $index => $displayItem) {
+                    $urlItem = $urlItems[$index] ?? '';
+                    $claimLink = $baseUrl . "gift_claimHandler.php?token={$inviteToken}&gift=" . urlencode($urlItem);
+
+                    $formattedWishlist .= "
+                        <li style='margin-bottom: 15px; padding: 10px; background-color: rgba(0,0,0,0.05); border-radius: 5px;'>
+                            <span style='font-size: 16px;'>" . htmlspecialchars($displayItem) . "</span>
+                            <a href='{$claimLink}' style='float: right; text-decoration: none; color: white; background-color: #2196F3; padding: 5px 10px; border-radius: 5px; font-size: 14px;'>I'll bring this</a>
+                        </li>";
+                }
+
+                $formattedWishlist .= "</ul>";
+                $formattedWishlist .= "<p style='font-size: 14px; color: #666;'>Please select only one gift from the list.</p>";
+            }
+        }
+
+        // HTML email content
         $mail->isHTML(true);
-        $mail->Subject = "You have been invited to an event!";
+        $mail->Subject = "You have been invited to {$eventName}";
         $mail->Body = "
             <html lang='en'>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <title>Event Invitation</title>
+            </head>
             <body style='background-color: {$backgroundColor}; font-family: Arial, sans-serif; color: {$fontColor}; padding: 20px;'>
-                <h2 style='color: {$fontColor}; text-align: center;'>{$eventName}</h2>
-                <p style='font-size: 16px;'>{$eventDescription}</p>
-                " . ($externalLink ? "<p><a href='{$externalLink}' style='color: {$fontColor};'>Visit the extra link</a></p>" : "") . "
-                <div style='text-align: center; margin-top: 40px;'>
-                    " . ($imageUrl ? "<img src='{$imageUrl}' alt='Event Image' style='max-width: 100%; border-radius: 8px; margin-bottom: 20px;' />" : "") . "
+                <div style='max-width: 600px; margin: 0 auto;'>
+                    <h2 style='color: {$fontColor}; text-align: center;'>{$eventName}</h2>
+                    <p style='font-size: 16px; line-height: 1.5;'>{$eventDescription}</p>
+                    
+                    " . ($externalLink ? "<p style='text-align: center;'><a href='{$externalLink}' style='color: {$fontColor}; text-decoration: underline;'>Visit our event page</a></p>" : "") . "
+                    
+                    <div style='text-align: center; margin: 30px 0;'>
+                        " . ($imageUrl ? "<img src='{$imageUrl}' alt='Event Image' style='max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px;' />" : "") . "
+                    </div>
+                    
+                    <div style='background-color: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin: 20px 0;'>
+                        <p style='font-size: 16px; margin-bottom: 15px;'>To RSVP, please click one of the options below:</p>
+                        <div style='text-align: center; margin: 20px 0;'>
+                            <a href='{$acceptLink}' style='display: inline-block; text-decoration: none; color: white; background-color: #4CAF50; padding: 12px 24px; border-radius: 5px; margin: 0 10px; font-weight: bold;'>Accept</a>
+                            <a href='{$declineLink}' style='display: inline-block; text-decoration: none; color: white; background-color: #f44336; padding: 12px 24px; border-radius: 5px; margin: 0 10px; font-weight: bold;'>Decline</a>
+                            <a href='{$dontKnowLink}' style='display: inline-block; text-decoration: none; color: white; background-color: #FF9800; padding: 12px 24px; border-radius: 5px; margin: 0 10px; font-weight: bold;'>Not Sure</a>
+                        </div>
+                    </div>
+                    
+                    {$formattedWishlist}
+                    
+                    <div style='margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);'>
+                        <p>Looking forward to seeing you!</p>
+                        <p>Best Regards,</p>
+                        <p><strong>{$inviter}</strong> and the MammaMiaMarcello Team</p>
+                    </div>
                 </div>
-                <p style='font-size: 16px;'>To RSVP, please click one of the options below:</p>
-                <p style='text-align: center; margin-bottom: 60px; margin-top: 20px;'>
-                    <a href='{$acceptLink}' style='text-decoration: none; color: white; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px;'>Accept Invitation</a>
-                </p>
-                <p style='text-align: center; margin-bottom: 60px;'>
-                    <a href='{$declineLink}' style='text-decoration: none; color: white; background-color: #f44336; padding: 10px 20px; border-radius: 5px;'>Decline Invitation</a>
-                </p>
-                <p style='text-align: center; margin-bottom: 60px;'>
-                    <a href='{$dontKnowLink}' style='text-decoration: none; color: white; background-color: #FF9800; padding: 10px 20px; border-radius: 5px;'>Not Sure Yet</a>
-                </p>
-                {$wishlistHtml}
-                <p style='margin-top: 20px;'>Looking forward to seeing you!</p>
-                <p>Best Regards,</p>
-                <p>The MammaMiaMarcello Team</p>
             </body>
             </html>";
 
-        // Plain text version of the email (alternative body)
-        $mail->AltBody = "
-            You are invited to a special event!\n\n
-            {$eventName}\n
-            {$eventDescription}\n
-            " . ($externalLink ? "Visit the event link: {$externalLink}\n" : "") . "
-            To RSVP, please click one of the options below:\n
-            Accept Invitation: {$acceptLink}\n
-            Decline Invitation: {$declineLink}\n
-            Not Sure Yet: {$dontKnowLink}\n
-            {$wishlistHtml}\n
-            Looking forward to seeing you!\n
-            Best Regards,\n
-            The MammaMiaMarcello Team
-        ";
+        // Plain text version
+        $mail->AltBody = "You are invited to: {$eventName}\n\n"
+            . "{$eventDescription}\n\n"
+            . ($externalLink ? "More info: {$externalLink}\n\n" : "")
+            . "RSVP options:\n"
+            . "Accept: {$acceptLink}\n"
+            . "Decline: {$declineLink}\n"
+            . "Not sure: {$dontKnowLink}\n\n"
+            . (!empty($formattedWishlist) ? "Gift wishlist available in the HTML version of this email.\n\n" : "")
+            . "Best regards,\n"
+            . "{$inviter} and the MammaMiaMarcello Team";
 
         $mail->send();
-    }
-    catch (Exception $e)
-    {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    } catch (Exception $e) {
+        error_log("Email sending failed: " . $e->getMessage());
+        throw new Exception("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
     }
 }

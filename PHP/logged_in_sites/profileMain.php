@@ -408,6 +408,16 @@ $sessionToken = $_SESSION['session_token'];
                 return;
             }
             try {
+
+                // Először lekérjük a kívánságlistát, ha be van pipálva az opció
+                let wishlistData = null;
+                if (includeWishlist) {
+                    const wishlistResponse = await fetch(`getWishlist.php?event_id=${eventId}`);
+                    if (wishlistResponse.ok) {
+                        wishlistData = await wishlistResponse.json();
+                    }
+                }
+
                 const response = await fetch("inviteHandler.php", {
                     method: "POST",
                     headers: {
@@ -417,6 +427,7 @@ $sessionToken = $_SESSION['session_token'];
                         event_id: eventId,
                         email: email,
                         include_wishlist: includeWishlist,
+                        wishlist_data: wishlistData,
                         template_data: templateData,
                     }),
                 });
@@ -431,6 +442,7 @@ $sessionToken = $_SESSION['session_token'];
 
                 A megoldás, hogy kiíratod a nyers választ a szerverről!!! (felül)
                  */
+                // const text = await response.text();
                 // console.log("Raw response:", text);
 
                 let result;
@@ -438,7 +450,7 @@ $sessionToken = $_SESSION['session_token'];
                     result = JSON.parse(text);
                 } catch (jsonError) {
 //                    console.error("Failed to parse JSON:", jsonError);
-                    displayInviteMessage("Invalid server response. Check logs for details.");
+                    displayInviteMessage("Invalid server response.");
                     return;
                 }
                 if (result.error) {
@@ -512,10 +524,13 @@ $sessionToken = $_SESSION['session_token'];
         document.getElementById("addWishlistItemButton").addEventListener("click", async () => {
             const eventId = document.getElementById("wishlistEventId").value;
             const item = document.getElementById("wishlistItem").value;
-            if (!item) {
+
+            if (!item)
+            {
                 alert("Item name is required.");
                 return;
             }
+
             try {
                 const response = await fetch("wishlistHandler.php?action=addItem", {
                     method: "POST",
@@ -533,7 +548,7 @@ $sessionToken = $_SESSION['session_token'];
                 }
             } catch (error) {
                 console.error("Error adding wishlist item:", error);
-                alert("Failed to add item. Please try again.");
+                alert("Failed to add item.");
             }
         });
 // Remove Wishlist Item
@@ -594,7 +609,7 @@ async function fetchUserProfile() {
         const baseurl1 = 'http://localhost/HWPProjektMarcello/PHP';
         const baseurl2 = 'http://localhost/HWP_2024/MammaMiaMarcello/PHP';
 
-        const url = baseurl2 + '/api.php?action=getUserProfile&session_token=' + encodeURIComponent('<?php echo $sessionToken; ?>');
+        const url = baseurl1 + '/api.php?action=getUserProfile&session_token=' + encodeURIComponent('<?php echo $sessionToken; ?>');
         // console.log('Requesting: ' + url);
         const response = await fetch(url);
         // console.log('Raw Response: ', response);
