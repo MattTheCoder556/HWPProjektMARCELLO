@@ -8,7 +8,27 @@
     <link rel='stylesheet' type='text/css' href='../assets/css/index.css'>
     </head>
 <body>
+
+<!-- Ajándék választási visszajelzés a főoldalon -->
+
 <?php include 'header.php'; ?>
+<?php
+if (isset($_SESSION['flash_error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 1%">
+        <?= $_SESSION['flash_error'] ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php unset($_SESSION['flash_error']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['flash_success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin: 1%">
+        <?= $_SESSION['flash_success'] ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php unset($_SESSION['flash_success']); ?>
+<?php endif; ?>
+
 <div class="main">
     <div>
         <h1>Welcome to the website!</h1>
