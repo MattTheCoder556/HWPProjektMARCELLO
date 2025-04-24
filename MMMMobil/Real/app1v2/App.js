@@ -1,4 +1,5 @@
 import React from 'react';
+import * as Notifications from 'expo-notifications';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './HomeScreen';
@@ -12,6 +13,14 @@ import PlanEventScreen from './PlanEventScreen';
 import { navigationRef } from './NavigationService';  // Import navigationRef
 
 const Stack = createStackNavigator();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function App() {
   return (

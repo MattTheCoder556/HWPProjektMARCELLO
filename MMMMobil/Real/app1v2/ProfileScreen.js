@@ -24,12 +24,12 @@ const ProfileScreen = ({ navigation }) => {
   // Fetch user profile data
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get('http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/api/getUserProfile', {
+      const response = await axios.get('http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserProfile', {
         params: { session_token: 'your-session-token' },
       });
       if (response.data) {
         setUserProfile(response.data);
-      } else {
+      } else {http://localhost/phpmyadmin/
         Alert.alert('Error', 'Could not fetch profile');
       }
     } catch (error) {
@@ -44,7 +44,7 @@ const ProfileScreen = ({ navigation }) => {
   const fetchUserEvents = async () => {
     try {
       // Fetch subscribed events
-      const responseSubscribed = await axios.get('http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/logged_in_sites/fetchEventsJS1.php', {
+      const responseSubscribed = await axios.get('http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS1.php', {
         params: { session_token: 'your-session-token' }, // Pass session token here
       });
       
@@ -56,7 +56,7 @@ const ProfileScreen = ({ navigation }) => {
       }
   
       // Fetch created events
-      const responseCreated = await axios.get('http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/logged_in_sites/fetchEventsJS2.php', {
+      const responseCreated = await axios.get('http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS2.php', {
         params: { session_token: 'your-session-token' },
       });
       

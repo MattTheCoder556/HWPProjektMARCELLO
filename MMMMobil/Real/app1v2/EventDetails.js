@@ -12,7 +12,7 @@ const EventDetails = ({ route, navigation }) => {
   useEffect(() => {
     const fetchEventData = async () => {
       try {
-        const apiUrl = `http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/api.php?action=getEvent&id=${eventId}`;
+        const apiUrl = `http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=getEvent&id=${eventId}`;
         const response = await fetch(apiUrl);
         const data = await response.json();
         setEvent(data);
@@ -32,20 +32,30 @@ const EventDetails = ({ route, navigation }) => {
     }
 
     try {
-      const signupApiUrl = `http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/api.php?action=signupForEvent&event_id=${eventId}&user_id=${userId}`;
-      const response = await fetch(signupApiUrl, { method: 'POST' });
+      const response = await fetch('http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=signupForEvent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `event_id=${eventId}&user_id=${userId}`,
+      });
+
       const data = await response.json();
       console.log('Sign up response:', data);
+
       if (data.success) {
         setIsSignedUp(true);
         Alert.alert('Success', 'You have signed up for the event!');
-        // Call the callback function to refresh the subscribed events
-        route.params.onEventSignedUp();
+        if (route.params.onEventSignedUp) {
+          route.params.onEventSignedUp(); // Callback to refresh events
+        }
+        scheduleEventReminderNotification(event);
       } else {
-        Alert.alert('Error', 'Failed to sign up.');
+        Alert.alert('Error', data.message || 'Failed to sign up.');
       }
     } catch (err) {
       console.error('Error during sign up:', err);
+      Alert.alert('Error', 'An error occurred while signing up.');
     }
   };
 
@@ -57,7 +67,11 @@ const EventDetails = ({ route, navigation }) => {
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
-      <Image source={{ uri: `http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/logged_in_sites/${event.event_pic}` }} style={styles.eventImage} />
+
+      <Image
+        source={{ uri: `http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/${event.event_pic}` }}
+        style={styles.eventImage}
+      />
       <Text style={styles.title}>{event.event_name}</Text>
       <Text>Type: {event.event_type}</Text>
       <Text>Description: {event.description}</Text>
@@ -75,11 +89,32 @@ const EventDetails = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingTop: 90, backgroundColor: '#a2a2a2' },
-  title: { fontSize: 24, fontWeight: 'bold', marginVertical: 10 },
-  eventImage: { width: '100%', height: 200, resizeMode: 'cover', marginBottom: 20 },
-  backButton: { position: 'absolute', top: 40, left: 20 },
-  backButtonText: { fontSize: 18, color: '#F34213' },
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 90,
+    backgroundColor: '#a2a2a2',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginVertical: 10,
+  },
+  eventImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+    marginBottom: 20,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+  },
+  backButtonText: {
+    fontSize: 18,
+    color: '#F34213',
+  },
 });
 
 export default EventDetails;

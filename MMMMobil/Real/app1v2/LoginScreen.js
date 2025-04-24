@@ -9,15 +9,11 @@ import {
   ScrollView,
 } from 'react-native';
 import axios from 'axios';
-import { UserContext } from './userContext';  // Import UserContext
+import { UserContext } from './userContext';
 
 const LoginScreen = ({ navigation }) => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-
-  const { setIsLoggedIn, setUserId } = useContext(UserContext);  // Get user context functions
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const { setIsLoggedIn, setUserId } = useContext(UserContext);
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -33,17 +29,18 @@ const LoginScreen = ({ navigation }) => {
 
     try {
       const response = await axios.post(
-        'http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/login_process.php',
-        { username: email, password }
+        'http://10.0.0.9/HWP_2024/HWPProjektMARCELLO/PHP/login_process.php',
+        { username: email, password },
+        {
+          headers: { 'Content-Type': 'application/json' }
+        }
       );
 
-      console.log('Server response:', response.data); // Debugging
+      console.log('Server response:', response.data);
 
       if (response.data.success) {
         setIsLoggedIn(true);
-        setUserId(response.data.userId); // Store userId in context
-        console.log("User ID set in context:", response.data.userId); // Debugging
-
+        setUserId(response.data.userId);
         Alert.alert('Success', 'Login successful!', [
           { text: 'OK', onPress: () => navigation.navigate('HomeScreen') },
         ]);

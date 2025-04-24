@@ -22,7 +22,7 @@ const AvailableEvents = ({ navigation }) => {
         const sessionToken = await AsyncStorage.getItem('session_token');
         
         if (username && sessionToken) {
-          const apiUrl = `http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/api/getUserId?username=${username}&session_token=${sessionToken}`;
+          const apiUrl = `http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserId?username=${username}&session_token=${sessionToken}`;
           const response = await fetch(apiUrl);
           const data = await response.json();
           if (data.id_user) {
@@ -42,7 +42,7 @@ const AvailableEvents = ({ navigation }) => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const eventsApiUrl = `http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/api/getEvents?user_id=${userId}${searchTerm ? `&search=${searchTerm}` : ''}`;
+        const eventsApiUrl = `http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/api/getEvents?user_id=${userId}${searchTerm ? `&search=${searchTerm}` : ''}`;
         const response = await fetch(eventsApiUrl);
         const data = await response.json();
         setEvents(data);
@@ -66,7 +66,7 @@ const AvailableEvents = ({ navigation }) => {
     return (
       <View style={styles.eventItem}>
         <Text style={styles.eventTitle}>{item.event_name}</Text>
-        <Image source={{ uri: `http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/logged_in_sites/${item.event_pic}` }} style={styles.eventImage} />
+        <Image source={{ uri: `http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/${item.event_pic}` }} style={styles.eventImage} />
         <Text>Type:{item.event_type}</Text>
         <Text>Description: {item.description}</Text>
         <Text>Start Date:{item.start_date}</Text>

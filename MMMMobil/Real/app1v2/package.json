@@ -35,7 +35,7 @@
     "react-native-screens": "^4.5.0",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-swiper": "^1.6.0",
-    "expo-notifications": "~0.29.13",
+    "expo-notifications": "~0.29.14",
     "expo-device": "~7.0.2"
   },
   "devDependencies": {

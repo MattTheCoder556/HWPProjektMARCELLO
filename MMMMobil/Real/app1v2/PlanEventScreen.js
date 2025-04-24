@@ -112,7 +112,7 @@ const EventPlanningScreen = ({ navigation }) => {
         });
       }
 
-      const response = await axios.post('http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/logged_in_sites/eventMakeHandler.php', formDataToSend, {
+      const response = await axios.post('http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/eventMakeHandler.php', formDataToSend, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 

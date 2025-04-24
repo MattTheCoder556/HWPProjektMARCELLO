@@ -22,7 +22,7 @@ try {
     $isWishlisted = false;
 
     $baseURL1 = "http://localhost/HWPProjektMarcello/PHP";
-    $baseURL2 = "http://localhost/HWP_2024/MammaMiaMarcello/PHP";
+    $baseURL2 = "http://localhost/HWP_2024/HWPProjektMarcello/PHP";
 
     // Fetch event details
     $eventResponse = @file_get_contents($baseURL2 . "/api.php?action=getEvent&id=" . $eventId);
