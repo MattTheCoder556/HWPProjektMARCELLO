@@ -21,7 +21,7 @@ try {
     $userId = $user['id_user'];
 
     // Get the comment ID from POST
-    $commentId = $_POST['comment_id'] ?? null;
+    $commentId = $_GET['comment_id'] ?? null;
 
     if (!$commentId) {
         throw new Exception('Comment ID is required.');

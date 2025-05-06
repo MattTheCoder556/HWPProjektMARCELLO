@@ -2,8 +2,8 @@
 require "config.php";
 require "functions.php";
 
-$baseURL1 = ""; //Gabor url
-$baseURL2 = "/HWP_2024/HWPProjektMARCELLO/PHP/index.php";
+$baseURL1 = "/HWPProjektMARCELLO/PHP/index.php"; //Gabor url
+$baseURL2 = "/HWP_2024/HWPProjektMARCELLO/PHP/index.php"; //Mate url
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
@@ -56,7 +56,7 @@ try {
             // Browser request: Redirect to homepage
             session_start();
             $_SESSION['user_id'] = $userId;
-            header("Location: ".$baseURL2);
+            header("Location: ".$baseURL1);
         }
         exit();
     } else {

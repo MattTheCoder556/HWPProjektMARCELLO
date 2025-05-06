@@ -25,7 +25,7 @@ try {
     $baseURL2 = "http://localhost/HWP_2024/HWPProjektMarcello/PHP";
 
     // Fetch event details
-    $eventResponse = @file_get_contents($baseURL2 . "/api.php?action=getEvent&id=" . $eventId);
+    $eventResponse = @file_get_contents($baseURL1 . "/api.php?action=getEvent&id=" . $eventId);
     if ($eventResponse === false) {
         throw new Exception('Failed to fetch event details');
     }
@@ -79,7 +79,6 @@ try {
         $invitedPeople = $stmt->fetchAll();
 
         // Fetch comments for the event
-        // Fetch comments for the event
             $stmt = $pdo->prepare("
             SELECT c.id_comment, c.comment_text, c.rating, c.created_at, c.user_id, u.username
             FROM event_comments c
@@ -94,6 +93,39 @@ try {
 } catch (Exception $e) {
     echo "Error: " . htmlspecialchars($e->getMessage());
     exit;
+}
+
+$canComment = false;
+if (isset($_SESSION['session_token']) && $event['comments_enabled']) {
+    // lookup user_id
+    $stmt = $pdo->prepare("
+      SELECT u.id_user
+      FROM users u
+      JOIN session_tokens s ON s.id_user = u.id_user
+      WHERE s.token = :token AND s.expiry_date > NOW()
+    ");
+    $stmt->execute([':token' => $_SESSION['session_token']]);
+    $me = $stmt->fetch();
+
+    if ($me) {
+        // only after event end
+        $now = new DateTime;
+        $eventEnds = new DateTime($event['end_date']);
+        if ($eventEnds < $now)
+        {
+            $stmt = $pdo->prepare("
+              SELECT COUNT(*) 
+              FROM event_comments 
+              WHERE event_id = :event_id AND user_id = :user_id
+            ");
+            $stmt->execute([
+                ':event_id' => $eventId,
+                ':user_id'  => $me['id_user']
+            ]);
+            $already = $stmt->fetchColumn() > 0;
+            $canComment = ! $already;
+        }
+    }
 }
 ?>
 
@@ -185,27 +217,30 @@ try {
         <?php endif; ?>
 
         <!-- Comment Section -->
-        <?php if (isset($_SESSION['session_token']) && $commentsEnabled): ?>
+        <?php if ($canComment): ?>
             <div class="row mt-5">
                 <div class="col-12">
                     <h3>Comments</h3>
                     <form method="POST" action="add_comment.php">
-                        <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
+                        <input type="hidden" name="event_id"   value="<?= htmlspecialchars($eventId) ?>">
                         <div class="mb-3">
                             <textarea name="comment_text" class="form-control" placeholder="Write your comment..." required></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="rating">Rate the Event:</label>
                             <select name="rating" class="form-select" required>
-                                <option value="1">1 - Poor</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="3">3 - Good</option>
-                                <option value="4">4 - Very Good</option>
-                                <option value="5">5 - Excellent</option>
+                                <option value="1">1 – Poor</option>
+                                <option value="2">2 – Fair</option>
+                                <option value="3">3 – Good</option>
+                                <option value="4">4 – Very Good</option>
+                                <option value="5">5 – Excellent</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Post Comment</button>
                     </form>
+                    <?php elseif (isset($_SESSION['session_token']) && $event['comments_enabled']): ?>
+                        <p class="text-white mt-5">Either commenting is disabled, the event hasn’t ended yet, or you’ve already left one.</p>
+                    <?php endif; ?>
 
                     <hr>
 
@@ -218,8 +253,9 @@ try {
                                     <p><?= htmlspecialchars($comment['comment_text']) ?></p>
                                     <p>Rating: <?= htmlspecialchars($comment['rating']) ?> / 5</p>
                                     <?php if ($comment['user_id'] == $userId): ?>
-                                        <form method="POST" action="delete_comment.php" class="d-inline">
+                                        <form method="GET" action="delete_comment.php" class="d-inline">
                                             <input type="hidden" name="comment_id" value="<?= htmlspecialchars($comment['id_comment']) ?>">
+                                            <input type="hidden" name="event_id"   value="<?= htmlspecialchars($eventId) ?>">
                                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                         </form>
                                     <?php endif; ?>
@@ -227,13 +263,10 @@ try {
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p>No comments yet. Be the first to comment!</p>
+                        <p>No comments yet.</p>
                     <?php endif; ?>
                 </div>
             </div>
-        <?php else: ?>
-            <p>Comments are dissabled in this event.</p>
-        <?php endif; ?>
     </div>
     <?php include_once 'footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

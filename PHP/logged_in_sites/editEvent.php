@@ -43,9 +43,12 @@ try {
         $startDate = $_POST['start_date'] ?? '';
         $endDate = $_POST['end_date'] ?? '';
         $place = $_POST['place'] ?? '';
+        $allowComments = isset($_POST['allow_comments']) ? 1 : 0;
 
         // Update the event in the database
-        $stmt = $pdo->prepare("UPDATE events SET event_name = :name, event_type = :type, description = :description, start_date = :start_date, end_date = :end_date, place = :place WHERE id_event = :id");
+        $stmt = $pdo->prepare("UPDATE events SET event_name = :name, event_type = :type, 
+                  description = :description, start_date = :start_date, end_date = :end_date, 
+                  place = :place, comments_enabled = :comments_enabled WHERE id_event = :id");
         $stmt->execute([
             ':name' => $name,
             ':type' => $type,
@@ -53,6 +56,7 @@ try {
             ':start_date' => $startDate,
             ':end_date' => $endDate,
             ':place' => $place,
+            ':comments_enabled' => $allowComments,
             ':id' => $eventId
         ]);
 
@@ -75,6 +79,7 @@ try {
     <link rel="stylesheet" type="text/css" href="../assets/css/eventDetails.css">
 </head>
 <body>
+<a href="profileMain.php" class="btn btn-secondary m-3" style="position: absolute; top: 10px; left: 10px;">&larr; Back</a>
     <div class="container my-5">
         <h1 class="text-center">Edit Event</h1>
         <form method="POST" class="mt-4">
@@ -101,6 +106,10 @@ try {
             <div class="mb-3">
                 <label for="place" class="form-label">Location</label>
                 <input type="text" class="form-control" id="place" name="place" value="<?= htmlspecialchars($event['place']) ?>" required>
+            </div>
+            <div class="form-check form-switch mb-4">
+                <input class="form-check-input" type="checkbox" id="allow_comments" name="allow_comments" <?= $event['comments_enabled'] ? 'checked' : '' ?>>
+                <label class="form-check-label" for="allow_comments">Allow comments</label>
             </div>
             <button type="submit" class="btn btn-success w-100">Update Event</button>
         </form>
