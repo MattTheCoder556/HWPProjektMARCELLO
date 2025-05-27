@@ -15,8 +15,9 @@ if (empty($eventId)) {
 }
 
 try {
-    $event = null;
     $comments = [];
+    $reminders = [];
+    $event = null;
     $userId = null;
     $isSignedUp = false;
     $isWishlisted = false;
@@ -35,7 +36,8 @@ try {
         throw new Exception($event['error']);
     }
 
-    if (isset($_SESSION['session_token'])) {
+    if (isset($_SESSION['session_token']))
+    {
         $sessionToken = $_SESSION['session_token'];
 
         // Fetch user from session_tokens
@@ -89,6 +91,15 @@ try {
             $stmt->execute([':event_id' => $eventId]);
             $comments = $stmt->fetchAll();
 
+        // Fetch user's reminders for this event
+        $stmt = $pdo->prepare("
+        SELECT id_reminder, title, content, reminder_time 
+        FROM event_reminders 
+        WHERE id_event = :event_id AND id_user = :user_id AND reminder_time > NOW()
+        ORDER BY reminder_time ASC
+    ");
+        $stmt->execute([':event_id' => $eventId, ':user_id' => $userId]);
+        $reminders = $stmt->fetchAll();
     }
 } catch (Exception $e) {
     echo "Error: " . htmlspecialchars($e->getMessage());
@@ -136,8 +147,92 @@ if (isset($_SESSION['session_token']) && $event['comments_enabled']) {
     <title>Event Details</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../assets/css/eventDetails.css">
+    <style>
+        .reminder-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 15px;
+            border: 1px solid #ddd;
+        }
+
+        .reminder-header {
+            background-color: #BC5D2E;
+            color: white;
+            padding: 10px;
+            border-radius: 5px 5px 0 0;
+            margin: -15px -15px 15px -15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .reminder-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .reminder-item {
+            background-color: white;
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #BC5D2E;
+        }
+
+        .reminder-form input,
+        .reminder-form textarea {
+            margin-bottom: 10px;
+        }
+
+        .close-reminder {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .move-reminder {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .reminder-left {
+            right: auto;
+            left: 20px;
+        }
+    </style>
 </head>
 <body>
+<?php if (isset($_SESSION['session_token'])): ?>
+<div class="reminder-container" id="reminderWindow">
+    <div class="reminder-header">
+        <span class="move-reminder" title="Move to other side">⇄</span>
+        <h5>My Reminders</h5>
+        <span class="close-reminder" title="Close">×</span>
+    </div>
+    <div class="reminder-list">
+        <!-- Dinamikusan töltődik -->
+        <p>Loading reminders...</p>
+    </div>
+    <form class="reminder-form">
+        <input type="text" class="form-control form-control-sm" placeholder="Reminder title" required>
+        <textarea class="form-control form-control-sm" placeholder="Details" rows="2"></textarea>
+        <input type="datetime-local" class="form-control form-control-sm" required>
+        <button type="submit" class="btn btn-sm btn-primary w-100" style="background-color: #BC5D2E; border-color: #BC5D2E;">Add Reminder</button>
+    </form>
+</div>
+<?php endif; ?>
+
     <div class="container my-5">
         <!-- Event Details -->
         <div class="row">
@@ -270,5 +365,133 @@ if (isset($_SESSION['session_token']) && $event['comments_enabled']) {
     </div>
     <?php include_once 'footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<?php if (isset($_SESSION['session_token'])): ?>
+    <script>
+        // Reminder ablak kezelése
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pozíció betöltése
+            const savedPosition = localStorage.getItem('reminderPosition');
+            if (savedPosition === 'left') {
+                document.getElementById('reminderWindow').classList.add('reminder-left');
+            }
+
+            // Emlékeztetők betöltése
+            loadReminders();
+        });
+
+        // Emlékeztetők frissítése
+        function loadReminders() {
+            fetch(`logged_in_sites/reminders_handler.php?action=get_reminders&event_id=<?= $eventId ?>`)
+                .then(response => response.json())
+                .then(data => {
+                    const reminderList = document.querySelector('.reminder-list');
+                    reminderList.innerHTML = '';
+
+                    if (!data.success) {
+                        reminderList.innerHTML = `<p>Error: ${data.error}</p>`;
+                        return;
+                    }
+
+                    if (data.reminders.length === 0) {
+                        reminderList.innerHTML = '<p>No active reminders</p>';
+                        return;
+                    }
+
+                    data.reminders.forEach(reminder => {
+                        const reminderItem = document.createElement('div');
+                        reminderItem.className = 'reminder-item';
+                        reminderItem.dataset.id = reminder.id_reminder;
+
+                        const reminderTime = new Date(reminder.reminder_time);
+                        const formattedTime = reminderTime.toLocaleString();
+
+                        reminderItem.innerHTML = `
+                    <strong>${reminder.title}</strong>
+                    <p>${reminder.content || ''}</p>
+                    <small>${formattedTime}</small>
+                    <button class="btn btn-sm btn-danger delete-reminder">×</button>
+                `;
+
+                        reminderList.appendChild(reminderItem);
+                    });
+
+                    // Törlés gombok eseménykezelője
+                    document.querySelectorAll('.delete-reminder').forEach(button => {
+                        button.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const reminderId = this.closest('.reminder-item').dataset.id;
+                            deleteReminder(reminderId);
+                        });
+                    });
+                });
+        }
+
+        // Emlékeztető törlése
+        function deleteReminder(reminderId) {
+            const formData = new FormData();
+            formData.append('action', 'delete_reminder');
+            formData.append('reminder_id', reminderId);
+
+            fetch('logged_in_sites/reminders_handler.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadReminders();
+                    } else {
+                        alert(`Error: ${data.error}`);
+                    }
+                });
+        }
+
+        // Új emlékeztető hozzáadása
+        document.querySelector('.reminder-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const title = this.querySelector('input[type="text"]').value;
+            const content = this.querySelector('textarea').value;
+            const reminderTime = this.querySelector('input[type="datetime-local"]').value;
+
+            if (!title || !reminderTime) {
+                alert('Title and time are required!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'add_reminder');
+            formData.append('event_id', <?= $eventId ?>);
+            formData.append('title', title);
+            formData.append('content', content);
+            formData.append('reminder_time', reminderTime);
+
+            fetch('logged_in_sites/reminders_handler.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadReminders();
+                        this.reset();
+                    } else {
+                        alert(`Error: ${data.error}`);
+                    }
+                });
+        });
+
+        // UI kezelés
+        document.querySelector('.close-reminder').addEventListener('click', () => {
+            document.getElementById('reminderWindow').style.display = 'none';
+        });
+
+        document.querySelector('.move-reminder').addEventListener('click', () => {
+            const reminderWindow = document.getElementById('reminderWindow');
+            reminderWindow.classList.toggle('reminder-left');
+            localStorage.setItem('reminderPosition', reminderWindow.classList.contains('reminder-left') ? 'left' : 'right');
+        });
+    </script>
+<?php endif; ?>
 </body>
 </html>
