@@ -1,12 +1,26 @@
 // axiosInstance.js
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const instance = axios.create({
-    baseURL: 'http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP', // Replace with your actual local IP
+let instance = null;
+
+export const getAxiosInstance = async () => {
+  if (instance) return instance; // reuse if already created
+
+  const backendIp = await AsyncStorage.getItem('@backend_ip');
+  const baseURL = backendIp
+    ? `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP`
+    : 'http://10.0.0.8:80/HWP_2024/HWPProjektMARCELLO/PHP'; // fallback IP
+
+  instance = axios.create({
+    baseURL,
     timeout: 5000,
     headers: {
       'Content-Type': 'application/json',
     },
   });
 
-export default instance;
+  return instance;
+};
+
+export default getAxiosInstance;

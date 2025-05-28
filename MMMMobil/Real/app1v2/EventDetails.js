@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Image, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from './userContext';
 
 const EventDetails = ({ route, navigation }) => {
@@ -8,22 +9,38 @@ const EventDetails = ({ route, navigation }) => {
   const [isSignedUp, setIsSignedUp] = useState(false);
   const [loading, setLoading] = useState(true);
   const { isLoggedIn, userId } = useContext(UserContext);
+  const [backendIp, setBackendIp] = useState(null);
 
   useEffect(() => {
-    const fetchEventData = async () => {
+    const loadBackendIpAndFetchEvent = async () => {
       try {
-        const apiUrl = `http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=getEvent&id=${eventId}`;
+        const savedIp = await AsyncStorage.getItem('@backend_ip');
+        if (!savedIp) {
+          Alert.alert('Missing IP', 'Please set the backend IP address in the Settings screen.');
+          return;
+        }
+        setBackendIp(savedIp);
+
+        const apiUrl = `http://${savedIp}/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=getEvent&id=${eventId}`;
         const response = await fetch(apiUrl);
         const data = await response.json();
         setEvent(data);
+
+        if (isLoggedIn && data.creator_id === userId) {
+          setIsSignedUp(false);
+        } else {
+          setIsSignedUp(false); // You could fetch actual signup status here
+        }
       } catch (err) {
-        Alert.alert('Failed to fetch event details');
+        Alert.alert('Error', 'Failed to fetch event details.');
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchEventData();
-  }, [eventId]);
+
+    loadBackendIpAndFetchEvent();
+  }, [eventId, isLoggedIn, userId]);
 
   const handleSignup = async () => {
     if (!isLoggedIn) {
@@ -31,8 +48,13 @@ const EventDetails = ({ route, navigation }) => {
       return;
     }
 
+    if (!backendIp) {
+      Alert.alert('Error', 'Backend IP address is not set.');
+      return;
+    }
+
     try {
-      const response = await fetch('http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=signupForEvent', {
+      const response = await fetch(`http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=signupForEvent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -40,18 +62,24 @@ const EventDetails = ({ route, navigation }) => {
         body: `event_id=${eventId}&user_id=${userId}`,
       });
 
-      const data = await response.json();
-      console.log('Sign up response:', data);
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
 
-      if (data.success) {
-        setIsSignedUp(true);
-        Alert.alert('Success', 'You have signed up for the event!');
-        if (route.params.onEventSignedUp) {
-          route.params.onEventSignedUp(); // Callback to refresh events
+      try {
+        const data = JSON.parse(responseText);
+        if (data.success) {
+          setIsSignedUp(true);
+          Alert.alert('Success', 'You have signed up for the event!');
+          if (route.params.onEventSignedUp) {
+            route.params.onEventSignedUp(); // Callback to refresh events
+          }
+          // scheduleEventReminderNotification(event); // Uncomment if you implement this
+        } else {
+          Alert.alert('Error', data.message || 'Failed to sign up.');
         }
-        scheduleEventReminderNotification(event);
-      } else {
-        Alert.alert('Error', data.message || 'Failed to sign up.');
+      } catch (jsonError) {
+        console.error('JSON parse error:', jsonError);
+        Alert.alert('Error', 'Server returned invalid JSON:\n' + responseText);
       }
     } catch (err) {
       console.error('Error during sign up:', err);
@@ -62,6 +90,8 @@ const EventDetails = ({ route, navigation }) => {
   if (loading) return <Text>Loading...</Text>;
   if (!event) return <Text>Event not found.</Text>;
 
+  const isCreator = event.creator_id === userId;
+
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -69,7 +99,7 @@ const EventDetails = ({ route, navigation }) => {
       </TouchableOpacity>
 
       <Image
-        source={{ uri: `http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/${event.event_pic}` }}
+        source={{ uri: `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/${event.event_pic}` }}
         style={styles.eventImage}
       />
       <Text style={styles.title}>{event.event_name}</Text>
@@ -79,10 +109,14 @@ const EventDetails = ({ route, navigation }) => {
       <Text>End Date: {event.end_date}</Text>
       <Text>Location: {event.place}</Text>
 
-      {isSignedUp ? (
-        <Button title="Sign Off" onPress={() => setIsSignedUp(false)} color="red" />
+      {isCreator ? (
+        <Button title="You created the event" disabled color="gray" />
       ) : (
-        <Button title="Sign Up for Event" onPress={handleSignup} />
+        isSignedUp ? (
+          <Button title="Sign Off" onPress={() => setIsSignedUp(false)} color="red" />
+        ) : (
+          <Button title="Sign Up for Event" onPress={handleSignup} />
+        )
       )}
     </View>
   );

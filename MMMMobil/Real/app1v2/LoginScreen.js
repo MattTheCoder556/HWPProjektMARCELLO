@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,37 @@ import {
   ScrollView,
 } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from './userContext';
 
 const LoginScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const { setIsLoggedIn, setUserId } = useContext(UserContext);
+  const [backendIp, setBackendIp] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadBackendIp = async () => {
+      try {
+        const savedIp = await AsyncStorage.getItem('@backend_ip');
+        if (savedIp) {
+          setBackendIp(savedIp);
+        } else {
+          Alert.alert(
+            'Missing IP Address',
+            'Please set the backend IP address in the Settings screen.'
+          );
+        }
+      } catch (error) {
+        console.error('Failed to load IP from AsyncStorage:', error);
+        Alert.alert('Error', 'Failed to load backend IP.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBackendIp();
+  }, []);
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -27,12 +53,17 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
+    if (!backendIp) {
+      Alert.alert('Error', 'Backend IP address not set.');
+      return;
+    }
+
     try {
       const response = await axios.post(
-        'http://10.0.0.9/HWP_2024/HWPProjektMARCELLO/PHP/login_process.php',
+        `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/login_process.php`,
         { username: email, password },
         {
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
 
@@ -41,9 +72,11 @@ const LoginScreen = ({ navigation }) => {
       if (response.data.success) {
         setIsLoggedIn(true);
         setUserId(response.data.userId);
+        //console.log(response.data);
         Alert.alert('Success', 'Login successful!', [
           { text: 'OK', onPress: () => navigation.navigate('HomeScreen') },
         ]);
+                await AsyncStorage.setItem('username', email);
       } else {
         Alert.alert('Error', response.data.message || 'Login failed.');
       }

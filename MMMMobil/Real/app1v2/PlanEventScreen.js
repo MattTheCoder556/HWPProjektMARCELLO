@@ -9,12 +9,14 @@ import {
   ScrollView,
   Alert,
   Platform,
+  PermissionsAndroid,
 } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
-import { UserContext } from './userContext'; // Assuming you're using Context for user
-import { Picker } from '@react-native-picker/picker'; // Updated import
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { UserContext } from './userContext';
+import { Picker } from '@react-native-picker/picker';
 
 const EventPlanningScreen = ({ navigation }) => {
   const { isLoggedIn } = useContext(UserContext);
@@ -33,32 +35,77 @@ const EventPlanningScreen = ({ navigation }) => {
     isPublic: false,
     photo: null,
   });
+
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
+  const [backendIp, setBackendIp] = useState(null);
 
   useEffect(() => {
     if (!isLoggedIn) {
       Alert.alert('Error', 'Please log in first');
       navigation.navigate('LoginScreen');
     }
+
+    const loadBackendIp = async () => {
+      try {
+        const savedIp = await AsyncStorage.getItem('@backend_ip');
+        if (savedIp) {
+          setBackendIp(savedIp);
+        } else {
+          Alert.alert('Missing IP Address', 'Please set the backend IP address in the Settings screen.');
+        }
+      } catch (error) {
+        console.error('Failed to load IP from AsyncStorage:', error);
+        Alert.alert('Error', 'Failed to load backend IP.');
+      }
+    };
+
+    loadBackendIp();
   }, [isLoggedIn, navigation]);
 
-  const handleImagePick = async () => {
-    try {
-      const result = await launchImageLibrary({
-        mediaType: 'photo',
-        includeBase64: true,
-      });
-
-      if (result.didCancel) return;
-
-      if (result.assets) {
-        const [asset] = result.assets;
-        setFormData({ ...formData, photo: asset });
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to pick an image');
+  const requestStoragePermission = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+        {
+          title: 'Permission Required',
+          message: 'This app needs access to your photo library to select event images.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
     }
+    return true;
+  };
+
+  const handleImagePick = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'Cannot access media library');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+      base64: false,
+    });
+
+    if (result.canceled) return;
+
+    const asset = result.assets[0];
+    setFormData((prev) => ({
+      ...prev,
+      photo: {
+        uri: asset.uri,
+        type: 'image/jpeg',
+        name: asset.uri.split('/').pop(),
+      },
+    }));
   };
 
   const handleDateChange = (event, selectedDate, field) => {
@@ -81,6 +128,11 @@ const EventPlanningScreen = ({ navigation }) => {
       return;
     }
 
+    if (!backendIp) {
+      Alert.alert('Error', 'Backend IP address not set.');
+      return;
+    }
+
     if (!formData.title || !formData.number || !formData.city || !formData.street || !formData.house) {
       Alert.alert('Error', 'Please fill in all required fields.');
       return;
@@ -93,6 +145,10 @@ const EventPlanningScreen = ({ navigation }) => {
 
     try {
       const formDataToSend = new FormData();
+
+      formDataToSend.append('api', '1');
+      formDataToSend.append('username', isLoggedIn?.username || '');
+
       formDataToSend.append('title', formData.title);
       formDataToSend.append('number', formData.number);
       formDataToSend.append('startDate', formData.startDate.toISOString());
@@ -108,16 +164,23 @@ const EventPlanningScreen = ({ navigation }) => {
         formDataToSend.append('photo', {
           uri: formData.photo.uri,
           type: formData.photo.type,
-          name: formData.photo.fileName,
+          name: formData.photo.name || 'event.jpg',
         });
       }
 
-      const response = await axios.post('http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/eventMakeHandler.php', formDataToSend, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axios.post(
+        `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/eventMakeHandler.php`,
+        formDataToSend,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
 
-      Alert.alert('Success', response.data || 'Event created successfully!');
-      navigation.navigate('AvailableEvents');
+      if (response.data.success) {
+        Alert.alert('Success', response.data.message || 'Event created successfully!');
+        navigation.navigate('AvailableEvents');
+      } else {
+        const error = response.data.errors ? response.data.errors.join('\n') : response.data.error;
+        Alert.alert('Failed', error || 'An error occurred.');
+      }
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'Failed to submit the event.');
@@ -140,7 +203,6 @@ const EventPlanningScreen = ({ navigation }) => {
         value={formData.title}
         onChangeText={(text) => setFormData({ ...formData, title: text })}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Number of Attendees"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import axios from 'axios';
-import axiosInstance from './axiosInstance'; // Adjust path based on your project structure
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -20,33 +20,44 @@ const RegisterScreen = ({ navigation }) => {
     password: '',
   });
 
-  const [loading, setLoading] = useState(false);
+  const [backendIp, setBackendIp] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-  // Simple validation helpers
+  useEffect(() => {
+    const loadBackendIp = async () => {
+      try {
+        const savedIp = await AsyncStorage.getItem('@backend_ip');
+        if (savedIp) {
+          setBackendIp(savedIp);
+        } else {
+          Alert.alert(
+            'Missing IP Address',
+            'Please set the backend IP address in the Settings screen.'
+          );
+        }
+      } catch (error) {
+        console.error('Failed to load IP from AsyncStorage:', error);
+        Alert.alert('Error', 'Failed to load backend IP.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBackendIp();
+  }, []);
+
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
   const validatePhone = (phone) => /^[0-9]{3}[-\s]?[0-9]{3}[-\s]?[0-9]{4}$/.test(phone);
   const validatePassword = (password) => /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(password);
 
-  // Handle form field changes
   const handleInputChange = (name) => (value) => {
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Navigate to Login screen
-  const LoginNavigate = () => {
-    navigation.navigate('LoginScreen');
-  };
-
-  // Navigate to Home screen
-  const HomeNavigate = () => {
-    navigation.navigate('HomeScreen');
-  };
-
-  // Handle form submission
   const handleSubmit = async () => {
     const { firstname, lastname, username, phone, password } = formData;
 
-    // Client-side validation
     if (!firstname || !lastname || !username || !phone || !password) {
       Alert.alert('Error', 'All fields are required.');
       return;
@@ -63,35 +74,49 @@ const RegisterScreen = ({ navigation }) => {
     }
 
     if (!validatePassword(password)) {
-      Alert.alert('Error', 'Password must contain at least 1 uppercase letter, 1 number, and be 8 characters long.');
+      Alert.alert(
+        'Error',
+        'Password must contain at least 1 uppercase letter, 1 number, and be 8 characters long.'
+      );
       return;
     }
 
-    if (loading) return; // Prevent duplicate submissions
+    if (!backendIp) {
+      Alert.alert('Error', 'Backend IP address not set.');
+      return;
+    }
 
-    setLoading(true);
+    if (submitting) return;
+
+    setSubmitting(true);
 
     try {
-      const response = await axiosInstance.post('/register_process.php', formData);
+      const response = await axios.post(
+        `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/register_process.php`,
+        formData,
+        { headers: { 'Content-Type': 'application/json' } }
+      );
 
-      if (response.data) {
+      console.log('Register response:', response.data);
+
+      if (response.data.success) {
         Alert.alert('Success', 'Registration successful!', [
-          { text: 'OK', onPress: () => LoginNavigate() },
+          { text: 'OK', onPress: () => navigation.navigate('LoginScreen') },
         ]);
       } else {
         Alert.alert('Error', response.data.message || 'Registration failed.');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Registration error:', error);
       Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={() => HomeNavigate()} style={styles.backButton}>
+      <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')} style={styles.backButton}>
         <Text style={styles.backButtonText}>← Home</Text>
       </TouchableOpacity>
       <Text style={styles.title}>Registration Form</Text>
@@ -142,12 +167,18 @@ const RegisterScreen = ({ navigation }) => {
         />
         <Text style={styles.helperText}>At least: 1 uppercase letter and a number</Text>
       </View>
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-        <Text style={styles.submitButtonText}>{loading ? 'Submitting...' : 'Register'}</Text>
+      <TouchableOpacity
+        style={styles.submitButton}
+        onPress={handleSubmit}
+        disabled={submitting}
+      >
+        <Text style={styles.submitButtonText}>
+          {submitting ? 'Submitting...' : 'Register'}
+        </Text>
       </TouchableOpacity>
       <Text style={styles.footerText}>
         Already have an account?{' '}
-        <Text style={styles.link} onPress={() => LoginNavigate()}>
+        <Text style={styles.link} onPress={() => navigation.navigate('LoginScreen')}>
           Login!
         </Text>
       </Text>

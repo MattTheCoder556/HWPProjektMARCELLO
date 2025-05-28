@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const SESSION_TOKEN = 'your-session-token'; // Replace with actual session token
 
 const ProfileScreen = ({ navigation }) => {
   const [userProfile, setUserProfile] = useState({
@@ -10,131 +13,163 @@ const ProfileScreen = ({ navigation }) => {
     phone: ''
   });
   const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Replace with actual login state
-  const [subscribedEvents, setSubscribedEvents] = useState([]); // Store subscribed events
-  const [createdEvents, setCreatedEvents] = useState([]); // Store created events
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [subscribedEvents, setSubscribedEvents] = useState([]);
+  const [createdEvents, setCreatedEvents] = useState([]);
+  const [backendIp, setBackendIp] = useState(null);
+
+  const refreshData = () => {
+    fetchUserProfile();
+    fetchUserEvents();
+  };
 
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchUserProfile();
-      fetchUserEvents();  // Fetch events when the user is logged in
-    }
-  }, [isLoggedIn]);
+    let isMounted = true;
 
-  // Fetch user profile data
+    const loadBackendIp = async () => {
+      try {
+        const savedIp = await AsyncStorage.getItem('@backend_ip');
+        if (isMounted) {
+          if (savedIp) {
+            setBackendIp(savedIp);
+          } else {
+            Alert.alert(
+              'IP Address Missing',
+              'Please set your backend IP address in the Settings screen.'
+            );
+            setLoading(false);
+          }
+        }
+      } catch (error) {
+        console.warn('Error loading backend IP from AsyncStorage:', error);
+        setLoading(false);
+      }
+    };
+
+    loadBackendIp();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isLoggedIn && backendIp) {
+      fetchUserProfile();
+      fetchUserEvents();
+    }
+  }, [isLoggedIn, backendIp]);
+
   const fetchUserProfile = async () => {
+    if (!backendIp) return;
+
+    setLoading(true);
     try {
-      const response = await axios.get('http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserProfile', {
-        params: { session_token: 'your-session-token' },
+      const url = `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserProfile`;
+      const response = await axios.get(url, {
+        params: { session_token: SESSION_TOKEN },
+        timeout: 7000,
       });
+
       if (response.data) {
         setUserProfile(response.data);
-      } else {http://localhost/phpmyadmin/
-        Alert.alert('Error', 'Could not fetch profile');
+      } else {
+        Alert.alert('Error', 'Profile data is empty.');
       }
     } catch (error) {
-      console.error(error);
-      Alert.alert('Error', 'Failed to load profile');
+      console.error('Failed to fetch profile:', error.message);
+      Alert.alert('Error', 'Failed to load profile. Check your network or IP.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch user's subscribed and created events
   const fetchUserEvents = async () => {
+    if (!backendIp) return;
+
     try {
-      // Fetch subscribed events
-      const responseSubscribed = await axios.get('http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS1.php', {
-        params: { session_token: 'your-session-token' }, // Pass session token here
+      const urlSubscribed = `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS1.php`;
+      const responseSubscribed = await axios.get(urlSubscribed, {
+        params: { session_token: SESSION_TOKEN },
+        timeout: 7000,
       });
-      
-      if (Array.isArray(responseSubscribed.data)) {
-        setSubscribedEvents(responseSubscribed.data);  // Set only if it's an array
-      } else {
-        console.error('Subscribed events data is not an array:', responseSubscribed.data);
-        setSubscribedEvents([]);  // Fallback to an empty array if the response is incorrect
-      }
-  
-      // Fetch created events
-      const responseCreated = await axios.get('http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS2.php', {
-        params: { session_token: 'your-session-token' },
+
+      setSubscribedEvents(Array.isArray(responseSubscribed.data) ? responseSubscribed.data : []);
+
+      const urlCreated = `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS2.php`;
+      const responseCreated = await axios.get(urlCreated, {
+        params: { session_token: SESSION_TOKEN },
+        timeout: 7000,
       });
-      
-      if (Array.isArray(responseCreated.data)) {
-        setCreatedEvents(responseCreated.data);  // Set only if it's an array
-      } else {
-        console.error('Created events data is not an array:', responseCreated.data);
-        setCreatedEvents([]);  // Fallback to an empty array if the response is incorrect
-      }
+
+      setCreatedEvents(Array.isArray(responseCreated.data) ? responseCreated.data : []);
     } catch (error) {
-      console.error(error);
-      Alert.alert('Error', 'Failed to load events');
+      console.error('Event fetching error:', error.message);
+      Alert.alert('Error', 'Failed to load events. Check your network or IP.');
     }
   };
 
-  // Navigate to Home Screen
   const HomeNavigate = () => {
     navigation.navigate('HomeScreen');
   };
 
-  // Navigate to Event Details
   const goToEventDetails = (eventId) => {
     navigation.navigate('EventDetails', { eventId });
   };
 
+  const goToEventEdit = (eventId) => {
+    navigation.navigate('editEventScreen', { eventId });
+  };
+
+  const saveProfile = () => {
+    // Implement saving logic
+    Alert.alert('Info', 'Profile saved successfully (dummy).');
+  };
+
   return (
     <ScrollView style={styles.container}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('SettingsScreen')}
+        style={styles.settingsButton}
+      >
+        <Text style={styles.settingsButtonText}>Settings</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.refreshButton}
+        onPress={refreshData}
+      >
+        <Text style={styles.refreshButtonText}>Refresh</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity onPress={HomeNavigate} style={styles.backButton}>
         <Text style={styles.backButtonText}>← Home</Text>
       </TouchableOpacity>
-      
+
       {loading ? (
         <Text>Loading...</Text>
       ) : (
         <>
           <Text style={styles.title}>Your Profile</Text>
-          
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>First Name:</Text>
-            <TextInput
-              style={styles.input}
-              value={userProfile.firstname}
-              onChangeText={(text) => setUserProfile({ ...userProfile, firstname: text })}
-            />
-          </View>
-          
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Last Name:</Text>
-            <TextInput
-              style={styles.input}
-              value={userProfile.lastname}
-              onChangeText={(text) => setUserProfile({ ...userProfile, lastname: text })}
-            />
-          </View>
-          
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Username:</Text>
-            <TextInput
-              style={styles.input}
-              value={userProfile.username}
-              onChangeText={(text) => setUserProfile({ ...userProfile, username: text })}
-            />
-          </View>
-          
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Phone:</Text>
-            <TextInput
-              style={styles.input}
-              value={userProfile.phone}
-              onChangeText={(text) => setUserProfile({ ...userProfile, phone: text })}
-            />
-          </View>
-          
+
+          {['firstname', 'lastname', 'username', 'phone'].map((field) => (
+            <View style={styles.formGroup} key={field}>
+              <Text style={styles.label}>{field.charAt(0).toUpperCase() + field.slice(1)}:</Text>
+              <TextInput
+                style={styles.input}
+                placeholder={field}
+                value={userProfile[field]}
+                onChangeText={(text) => setUserProfile({ ...userProfile, [field]: text })}
+                keyboardType={field === 'phone' ? 'phone-pad' : 'default'}
+              />
+            </View>
+          ))}
+
           <Text style={styles.title}>Subscribed Events</Text>
           {subscribedEvents.length > 0 ? (
             <View style={styles.eventsContainer}>
-              {subscribedEvents.map((event, index) => (
-                <View key={index} style={styles.eventItem}>
+              {subscribedEvents.map((event) => (
+                <View key={event.id_event} style={styles.eventItem}>
                   <Text style={styles.eventName}>{event.event_name}</Text>
                   <Text>{event.event_type}</Text>
                   <Text>{event.start_date} - {event.end_date}</Text>
@@ -147,19 +182,22 @@ const ProfileScreen = ({ navigation }) => {
           ) : (
             <Text>No subscribed events found.</Text>
           )}
-          
+
           <Text style={styles.title}>Created Events</Text>
           {createdEvents.length > 0 ? (
             <View style={styles.eventsContainer}>
-              {createdEvents.map((event, index) => (
-                <View key={index} style={styles.eventItem}>
+              {createdEvents.map((event) => (
+                <View key={event.id_event} style={styles.eventItem}>
                   <Text style={styles.eventName}>{event.event_name}</Text>
                   <Text>{event.event_type}</Text>
                   <Text>{event.start_date} - {event.end_date}</Text>
                   <TouchableOpacity onPress={() => goToEventDetails(event.id_event)} style={styles.viewDetailsButton}>
                     <Text style={styles.viewDetailsButtonText}>View Details</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.manageButton}>
+                  <TouchableOpacity
+                    style={styles.manageButton}
+                    onPress={() => goToEventEdit(event.id_event)}
+                  >
                     <Text style={styles.manageButtonText}>Manage Event</Text>
                   </TouchableOpacity>
                 </View>
@@ -168,8 +206,8 @@ const ProfileScreen = ({ navigation }) => {
           ) : (
             <Text>No created events found.</Text>
           )}
-          
-          <TouchableOpacity style={styles.submitButton} onPress={() => console.log('Save Profile')}>
+
+          <TouchableOpacity style={styles.submitButton} onPress={saveProfile}>
             <Text style={styles.submitButtonText}>Save Profile</Text>
           </TouchableOpacity>
         </>
@@ -239,17 +277,57 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    backgroundColor: '#fff',
   },
   submitButton: {
     backgroundColor: '#F34213',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
+    marginBottom: 20,
   },
   submitButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  backButton: {
+    marginBottom: 20,
+    marginLeft: 10,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: '#007BFF',
+  },
+  settingsButton: {
+    position: 'absolute',
+    top: 40,
+    right: 16,
+    zIndex: 10,
+    backgroundColor: '#007BFF',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  settingsButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  refreshButton: {
+    position: 'absolute',
+    top: 40,
+    left: 16,
+    zIndex: 10,
+    backgroundColor: '#28a745',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  refreshButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

@@ -30,6 +30,7 @@ try {
 
 // Determine the API action from the request
 $action = $_GET['action'] ?? '';
+file_put_contents('debug_log.txt', "Action: " . $action . "\n", FILE_APPEND);
 
 switch ($action) {
     case 'getUserId':
@@ -62,6 +63,10 @@ switch ($action) {
 
     case 'deleteInvite':
         deleteInvite($pdo);
+        break;
+
+    case 'updateEvent':
+        updateEvent($pdo);
         break;
 
     default:
@@ -209,6 +214,87 @@ function isUserSignedUp($pdo) {
         echo json_encode(["error" => "Failed to check user signup status"]);
     }
 }
+
+function signupForEvent($pdo) {
+    if (!isset($_POST['event_id']) || !isset($_POST['user_id'])) {
+        echo json_encode(["success" => false, "message" => "Missing event_id or user_id"]);
+        exit;
+    }
+
+    $eventId = $_POST['event_id'];
+    $userId = $_POST['user_id'];
+
+    try {
+        // Optional: Check if already signed up
+        $stmt = $pdo->prepare("SELECT * FROM event_signups WHERE event_id = :event_id AND user_id = :user_id");
+        $stmt->execute([':event_id' => $eventId, ':user_id' => $userId]);
+        if ($stmt->fetch()) {
+            echo json_encode(["success" => false, "message" => "Already signed up"]);
+            return;
+        }
+
+        // Insert new signup
+        $stmt = $pdo->prepare("INSERT INTO event_signups (event_id, user_id) VALUES (:event_id, :user_id)");
+        $stmt->execute([':event_id' => $eventId, ':user_id' => $userId]);
+
+        echo json_encode(["success" => true]);
+    } catch (PDOException $e) {
+        echo json_encode(["success" => false, "message" => "Signup failed: " . $e->getMessage()]);
+    }
+}
+
+if ($_GET['action'] === 'signupForEvent') {
+    signupForEvent($pdo);
+    exit;
+}
+
+function updateEvent($pdo) {
+    header('Content-Type: application/json');
+
+    // Check if required POST parameters are set
+    if (
+        isset($_POST['event_id'], $_POST['user_id'], $_POST['event_name'], $_POST['description'], 
+              $_POST['start_date'], $_POST['end_date'], $_POST['place'], $_POST['event_type'])
+    ) {
+        // Sanitize and assign variables
+        $eventId = intval($_POST['event_id']);
+        $userId = intval($_POST['user_id']);
+        $eventName = trim($_POST['event_name']);
+        $description = trim($_POST['description']);
+        $startDate = $_POST['start_date'];
+        $endDate = $_POST['end_date'];
+        $place = trim($_POST['place']);
+        $eventType = trim($_POST['event_type']);
+
+        // Optional: Validate ownership
+        /*
+        $stmtCheck = $pdo->prepare("SELECT id_event FROM events WHERE id_event = ? AND id_user = ?");
+        $stmtCheck->execute([$eventId, $userId]);
+        if ($stmtCheck->rowCount() === 0) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized: You are not the creator of this event.']);
+            exit;
+        }
+        */
+
+        // Prepare and execute the update
+        $stmt = $pdo->prepare("
+            UPDATE events
+            SET event_name = ?, description = ?, start_date = ?, end_date = ?, place = ?, event_type = ?
+            WHERE id_event = ?
+        ");
+
+        if ($stmt->execute([$eventName, $description, $startDate, $endDate, $place, $eventType, $eventId])) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Database update failed.']);
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Missing parameters.']);
+    }
+
+    exit;
+}
+
 
 function getUserProfile($pdo) {
     $sessionToken = $_SESSION['session_token'] ?? $_GET['session_token'] ?? null;

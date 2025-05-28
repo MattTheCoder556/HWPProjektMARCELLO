@@ -1,20 +1,51 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Modal, ScrollView, Alert } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Modal,
+  ScrollView,
+  Alert,
+  TextInput,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from './userContext'; // Import the UserContext
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State to manage the menu
   const [isSitesOpen, setIsSitesOpen] = useState(false); // State to manage the Sites dropdown
-  const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);  // Use context for login status
+  const { isLoggedIn, setIsLoggedIn } = useContext(UserContext); // Use context for login status
   const navigation = useNavigation();
+
+  // State for IP input
+  const [ip, setIp] = useState('');
+
+  // Load saved IP from AsyncStorage on mount
+  useEffect(() => {
+    const loadIp = async () => {
+      try {
+        const savedIp = await AsyncStorage.getItem('@backend_ip');
+        if (savedIp) {
+          setIp(savedIp);
+        }
+      } catch (error) {
+        console.error('Failed to load IP from AsyncStorage:', error);
+        Alert.alert('Error', 'Failed to load saved IP address.');
+      }
+    };
+
+    loadIp();
+  }, []);
 
   // Toggle main menu visibility
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-  
+
   const LoginNavigate = () => {
     navigation.navigate('LoginScreen');
   };
@@ -39,16 +70,14 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       // Replace with the correct URL for your logout script
-      const response = await axios.get('http://10.0.0.12:80/HWP_2024/MammaMiaMarcello/PHP/logout.php');
-      
+      const response = await axios.get(
+        `http://${ip}/HWP_2024/HWPProjektMARCELLO/PHP/logout.php`
+      );
+
       if (response.status === 200) {
-        // Clear session or authentication data if stored locally
-        // Example: AsyncStorage.removeItem('user_token'); (if using AsyncStorage)
-        
         setIsLoggedIn(false); // Update login state to false
         Alert.alert('Success', 'You have been logged out');
-        // Navigate to login screen after logout
-        navigation.navigate('LoginScreen');
+        navigation.navigate('HomeScreen');
       } else {
         Alert.alert('Error', 'Failed to log out');
       }
@@ -61,6 +90,21 @@ const Header = () => {
   // Toggle the Sites dropdown visibility
   const toggleSitesDropdown = () => {
     setIsSitesOpen(!isSitesOpen);
+  };
+
+  // Accept IP handler - saves IP to AsyncStorage
+  const handleAcceptIP = async () => {
+    if (!ip) {
+      Alert.alert('Error', 'Please enter a valid IP address.');
+      return;
+    }
+    try {
+      await AsyncStorage.setItem('@backend_ip', ip);
+      Alert.alert('IP Accepted', `IP set to: ${ip}`);
+    } catch (error) {
+      console.error('Failed to save IP:', error);
+      Alert.alert('Error', 'Failed to save IP address.');
+    }
   };
 
   return (
@@ -89,7 +133,7 @@ const Header = () => {
               <TouchableOpacity style={styles.menuItem} onPress={toggleMenu}>
                 <Text style={styles.navLink}>Home</Text>
               </TouchableOpacity>
-              
+
               {/* Sites Dropdown */}
               <TouchableOpacity style={styles.menuItem} onPress={toggleSitesDropdown}>
                 <Text style={styles.navLink}>Sites</Text>
@@ -115,7 +159,7 @@ const Header = () => {
               <TouchableOpacity style={styles.menuItem} onPress={toggleMenu}>
                 <Text style={styles.navLink}>Contact</Text>
               </TouchableOpacity>
-              
+
               {/* Conditional rendering based on login status */}
               {isLoggedIn ? (
                 <>
@@ -137,6 +181,24 @@ const Header = () => {
                 </>
               )}
             </ScrollView>
+
+            {/* IP Input Field */}
+            <TextInput
+              style={styles.ipInput}
+              placeholder="Enter IP"
+              placeholderTextColor="#ccc"
+              value={ip}
+              onChangeText={setIp}
+              keyboardType="numeric"
+              autoCapitalize="none"
+            />
+
+            {/* Accept Button */}
+            <TouchableOpacity style={styles.acceptButton} onPress={handleAcceptIP}>
+              <Text style={styles.acceptButtonText}>Accept</Text>
+            </TouchableOpacity>
+
+            {/* Close Button */}
             <TouchableOpacity style={styles.closeButton} onPress={toggleMenu}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
@@ -211,7 +273,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#DE9151',
     borderRadius: 5,
-    marginTop: 20,
+    marginTop: 10,
   },
   closeButtonText: {
     color: 'white',
@@ -220,6 +282,28 @@ const styles = StyleSheet.create({
   navLink: {
     color: '#BBB8B2',
     fontSize: 16,
+  },
+  ipInput: {
+    height: 40,
+    borderColor: '#DE9151',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    color: '#fff',
+    fontSize: 16,
+    backgroundColor: '#3D3D4E',
+  },
+  acceptButton: {
+    paddingVertical: 12,
+    backgroundColor: '#5CB85C',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  acceptButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
 

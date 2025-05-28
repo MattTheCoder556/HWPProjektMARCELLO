@@ -1,102 +1,147 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AvailableEvents = ({ navigation }) => {
   const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [backendIp, setBackendIp] = useState('');
 
-  const HomeNavigate = () => {
-    navigation.navigate('HomeScreen');
-  };
-
-
-  // Fetch user ID from AsyncStorage
   useEffect(() => {
+    const getBackendIp = async () => {
+      try {
+        const ip = await AsyncStorage.getItem('@backend_ip');
+        if (ip) {
+          setBackendIp(ip);
+        } else {
+          setError('Backend IP not found in storage.');
+        }
+      } catch (err) {
+        setError('Failed to load backend IP: ' + err.message);
+      }
+    };
+    getBackendIp();
+  }, []);
+
+  useEffect(() => {
+    console.log('backendIp:', backendIp);
+  }, [backendIp]);
+
+  useEffect(() => {
+    if (!backendIp) return;
+
     const fetchUserId = async () => {
       try {
         const username = await AsyncStorage.getItem('username');
         const sessionToken = await AsyncStorage.getItem('session_token');
-        
+        console.log(username, sessionToken);
+
         if (username && sessionToken) {
-          const apiUrl = `http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserId?username=${username}&session_token=${sessionToken}`;
+          const apiUrl = `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserId?username=${username}&session_token=${sessionToken}`;
+          console.log('UserID API URL:', apiUrl);
+
           const response = await fetch(apiUrl);
           const data = await response.json();
+
+          console.log('UserID API response:', data);
+
           if (data.id_user) {
-            setUserId(data.id_user); // Set user ID if found
+            setUserId(data.id_user);
+          } else {
+            setError('User ID not found in response.');
           }
+        } else {
+          setError('User not logged in.');
         }
-      } catch (error) {
-        setError('Failed to fetch user ID.');
+      } catch (err) {
+        setError('Failed to fetch user ID: ' + err.message);
       }
     };
 
     fetchUserId();
-  }, []);
+  }, [backendIp]);
 
-  // Fetch events from the API
   useEffect(() => {
+    if (!backendIp || !userId) return;
+
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const eventsApiUrl = `http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/api/getEvents?user_id=${userId}${searchTerm ? `&search=${searchTerm}` : ''}`;
-        const response = await fetch(eventsApiUrl);
+        const url = `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/api/getEvents?user_id=${userId}${searchTerm ? `&search=${searchTerm}` : ''}`;
+        console.log('Events API URL:', url);
+
+        const response = await fetch(url);
         const data = await response.json();
+
+        console.log('Events API response:', data);
+
         setEvents(data);
-        setLoading(false);
-      } catch (error) {
-        setError('Failed to fetch events.');
+        setError(null);
+      } catch (err) {
+        setError('Failed to fetch events: ' + err.message);
+        setEvents([]);
+      } finally {
         setLoading(false);
       }
     };
 
     fetchEvents();
-  }, [userId, searchTerm]); // Fetch events when userId or searchTerm changes
+  }, [backendIp, userId, searchTerm]);
 
-  // Handle search input
   const handleSearch = (text) => {
     setSearchTerm(text);
   };
 
-  // Render each event item in the list
-  const renderItem = ({ item }) => {
-    return (
-      <View style={styles.eventItem}>
-        <Text style={styles.eventTitle}>{item.event_name}</Text>
-        <Image source={{ uri: `http://10.0.0.9:80/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/${item.event_pic}` }} style={styles.eventImage} />
-        <Text>Type:{item.event_type}</Text>
-        <Text>Description: {item.description}</Text>
-        <Text>Start Date:{item.start_date}</Text>
-        <Text>End Date: {item.end_date}</Text>
-        <Text>Location: {item.place}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('EventDetails', { eventId: item.id_event })}>
-          <Text style={styles.detailsButton}>Details</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+  const HomeNavigate = () => navigation.navigate('HomeScreen');
+
+  const renderItem = ({ item }) => (
+    <View style={styles.eventItem}>
+      <Text style={styles.eventTitle}>{item.event_name}</Text>
+      <Image
+        source={{ uri: `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/${item.event_pic}` }}
+        style={styles.eventImage}
+      />
+      <Text>Type: {item.event_type}</Text>
+      <Text>Description: {item.description}</Text>
+      <Text>Start Date: {item.start_date}</Text>
+      <Text>End Date: {item.end_date}</Text>
+      <Text>Location: {item.place}</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('EventDetails', { eventId: item.id_event })}>
+        <Text style={styles.detailsButton}>Details</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={HomeNavigate} style={styles.backButton}>
         <Text style={styles.backButtonText}>← Home</Text>
       </TouchableOpacity>
+
       <Text style={styles.header}>Available Events</Text>
-      
+
       <TextInput
         style={styles.searchInput}
         placeholder="Search for events..."
         value={searchTerm}
         onChangeText={handleSearch}
       />
-      
+
       {loading ? (
         <Text>Loading...</Text>
       ) : error ? (
-        <Text>{error}</Text>
+        <Text style={{ color: 'red' }}>{error}</Text>
       ) : (
         <FlatList
           data={events}
@@ -113,7 +158,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     paddingTop: 50,
-    backgroundColor: '#a2a2a2'
+    backgroundColor: '#a2a2a2',
   },
   header: {
     fontSize: 24,
@@ -127,6 +172,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingLeft: 10,
     borderRadius: 5,
+    backgroundColor: 'white',
   },
   eventItem: {
     marginBottom: 20,

@@ -10,7 +10,11 @@ import ProfileScreen from './ProfileScreen';
 import AvailableEvents from './AvailableEvents';
 import EventDetails from './EventDetails';
 import PlanEventScreen from './PlanEventScreen';
+import EditEventScreen from './editEventScreen';
+import SettingsScreen from './SettingsScreen';
+
 import { navigationRef } from './NavigationService';  // Import navigationRef
+import { IpProvider } from './IPContext';
 
 const Stack = createStackNavigator();
 
@@ -25,6 +29,7 @@ Notifications.setNotificationHandler({
 export default function App() {
   return (
     <UserProvider>
+      <IpProvider>
       <NavigationContainer ref={navigationRef}>  
         <Stack.Navigator initialRouteName="HomeScreen">
           <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
@@ -34,8 +39,12 @@ export default function App() {
           <Stack.Screen name="AvailableEvents" component={AvailableEvents} options={{ headerShown: false }} />
           <Stack.Screen name="EventDetails" component={EventDetails} options={{ headerShown: false }} />
           <Stack.Screen name="PlanEventScreen" component={PlanEventScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="editEventScreen" component={EditEventScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ headerShown: false }} />
+
         </Stack.Navigator>
       </NavigationContainer>
+      </IpProvider>
     </UserProvider>
   );
 }

@@ -56,7 +56,7 @@ try {
             // Browser request: Redirect to homepage
             session_start();
             $_SESSION['user_id'] = $userId;
-            header("Location: ".$baseURL1);
+            header("Location: ".$baseURL2);
         }
         exit();
     } else {
