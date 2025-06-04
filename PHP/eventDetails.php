@@ -26,12 +26,11 @@ try {
     $baseURL2 = "http://localhost/HWP_2024/HWPProjektMarcello/PHP";
 
     // Fetch event details
-    $eventResponse = @file_get_contents($baseURL2 . "/api.php?action=getEvent&id=" . $eventId);
+    $eventResponse = @file_get_contents($baseURL1 . "/api.php?action=getEvent&id=" . $eventId);
     if ($eventResponse === false) {
         throw new Exception('Failed to fetch event details');
     }
     $event = json_decode($eventResponse, true);
-    //echo($event);
     $commentsEnabled = $event['comments_enabled'];
     if (isset($event['error'])) {
         throw new Exception($event['error']);

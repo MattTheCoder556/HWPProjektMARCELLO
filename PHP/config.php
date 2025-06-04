@@ -1,7 +1,8 @@
 <?php
 
 $dbHost = 'localhost';
-$dbName = 'marcello_test';
+$dbName = 'marcello_v2';
+//$dbName = 'marcello_test';
 $dbUser = 'root';
 $dbPass = '';
 
@@ -12,7 +13,8 @@ try
 }
 catch (PDOException $e)
 {
-	die("Database connection failed: " . $e->getMessage());
+    die("Database connection failed: " . $e->getMessage());
 }
 
-$apiBaseUrl = 'http://localhost/HWP_2024/HWPProjektMARCELLO/PHP/api';
+$apiBaseUrl = 'http://localhost/HWPProjectMarcello/PHP/api';
+//$apiBaseUrl = 'http://localhost/HWP_2024/HWPProjektMARCELLO/PHP/api';

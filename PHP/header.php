@@ -1,72 +1,72 @@
 <header>
-	<nav class="navbar navbar-expand-md navbar-dark" style="background-color: #2E2E3A;">
-		<div class="container">
-			<!-- Logo and Brand Name -->
-			<a class="navbar-brand" href="index.php" aria-description="Link to homepage">
-				<img src="../assets/pictures/logo.png" alt="Logo" style="max-width: 50px;" class="mr-2">
-				<span style="color: #DE9151;">MammaMia Marcello</span>
-			</a>
+    <nav class="navbar navbar-expand-md navbar-dark" style="background-color: #2E2E3A;">
+        <div class="container">
+            <!-- Logo and Brand Name -->
+            <a class="navbar-brand" href="index.php" aria-description="Link to homepage">
+                <img src="../assets/pictures/logo.png" alt="Logo" style="max-width: 50px;" class="mr-2">
+                <span style="color: #DE9151;">MammaMia Marcello</span>
+            </a>
 
-			<!-- Toggler for Mobile View -->
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
+            <!-- Toggler for Mobile View -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-			<!-- Navbar Links -->
-			<div class="collapse navbar-collapse" id="navbarNav">
-				<ul class="navbar-nav ml-auto">
-					<!-- Home -->
-					<li class="nav-item">
-						<a class="nav-link" href="index.php">Home</a>
-					</li>
-					<!-- Services Dropdown -->
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							Sites
-						</a>
-						<div class="dropdown-menu" aria-labelledby="servicesDropdown" style="background-color: #2E2E3A;">
-							<?php
-							require_once 'functions.php';
-
-							if(isset($_SESSION['username']) && isset($_SESSION['session_token']))
-                            {
-							    echo '<a class="dropdown-item footer-link" href="logged_in_sites/eventMaker.php">Event maker</a>';
-							    echo '<a class="dropdown-item footer-link" href="logged_in_sites/profileMain.php">Profile</a>';
-							}
-							?>
-                            <a class="dropdown-item footer-link" href="availableEvents.php">Available events</a>
-						</div>
-					</li>
-					<!-- FAQ -->
-					<li class="nav-item">
-						<a class="nav-link" href="/faq">FAQ</a>
-					</li>
-					<!-- Contact -->
-					<li class="nav-item">
-						<a class="nav-link" href="/contact">Contact</a>
-					</li>
-					<?php
-                    require_once "functions.php";
-                        if (!isset($_SESSION['username']) || !isset($_SESSION['session_token'])): ?>
-                            <!-- Display Register and Login buttons if the user is not logged in -->
-                            <li>
-                                <button onclick="window.location.href='register.php'" class="btn" id="reg_button" style="background-color: #BC5D2E">Register</button>
-                            </li>
-                        <li style="visibility: hidden">""</li>
-                            <li>
-                                <button onclick="window.location.href='login.php'" class="btn" id="log_button" style="background-color: #DE9151">Login</button>
-                            </li>
+            <!-- Navbar Links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <!-- Home -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php">Home</a>
+                    </li>
+                    <!-- Services Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Sites
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="servicesDropdown" style="background-color: #2E2E3A;">
                             <?php
-                            else: ?>
-                            <!-- Display Logout button if the user is logged in -->
-                            <li>
-                                <button onclick="window.location.href='logged_in_sites/logout.php'" class="btn btn-danger">Logout</button>
-                            </li>
+                            require_once 'functions.php';
+
+                            if(isset($_SESSION['username']) && isset($_SESSION['session_token']))
+                            {
+                                echo '<a class="dropdown-item footer-link" href="logged_in_sites/eventMaker.php">Event maker</a>';
+                                echo '<a class="dropdown-item footer-link" href="logged_in_sites/profileMain.php">Profile</a>';
+                            }
+                            ?>
+                            <a class="dropdown-item footer-link" href="availableEvents.php">Available events</a>
+                        </div>
+                    </li>
+                    <!-- FAQ -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="faq.php">FAQ</a>
+                    </li>
+                    <!-- Contact -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.php">Contact</a>
+                    </li>
+                    <?php
+                    require_once "functions.php";
+                    if (!isset($_SESSION['username']) || !isset($_SESSION['session_token'])): ?>
+                        <!-- Display Register and Login buttons if the user is not logged in -->
+                        <li>
+                            <button onclick="window.location.href='register.php'" class="btn" id="reg_button" style="background-color: #BC5D2E">Register</button>
+                        </li>
+                        <li style="visibility: hidden">""</li>
+                        <li>
+                            <button onclick="window.location.href='login.php'" class="btn" id="log_button" style="background-color: #DE9151">Login</button>
+                        </li>
+                    <?php
+                    else: ?>
+                        <!-- Display Logout button if the user is logged in -->
+                        <li>
+                            <button onclick="window.location.href='logged_in_sites/logout.php'" class="btn btn-danger">Logout</button>
+                        </li>
                     <?php endif; ?>
                 </ul>
-			</div>
-		</div>
-	</nav>
+            </div>
+        </div>
+    </nav>
 </header>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">

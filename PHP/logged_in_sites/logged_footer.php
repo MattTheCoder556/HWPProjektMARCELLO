@@ -1,4 +1,3 @@
-<!-- footer.php -->
 <?php
 require __DIR__ . "/../../vendor/autoload.php";
 include_once "../config.php";
@@ -24,37 +23,40 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
                 <div class="row">
                     <!-- Company Column -->
                     <div class="col-12 col-md-4 mb-4">
-                        <h6 class="fw-bold" style="color: #DE9151;">Company</h6>
+                        <h6 class="fw-bold" style="color: #DE9151;">Main</h6>
                         <ul class="list-unstyled">
-                            <li><a href="/faq" class="footer-link">FAQ</a></li>
-                            <li><a href="/tutorials" class="footer-link">Tutorials</a></li>
+                            <li><a href="../index.php" class="footer-link">Home page</a></li>
+                            <?php
+                            if(!isset($_SESSION['username']) && !isset($_SESSION['session_token']))
+                            {
+                                echo '<li><a href="../register.php" class="footer-link">Register</a></li>';
+                                echo '<li><a href="../login.php" class="footer-link">Login</a></li>';
+                            }
+                            ?>
                         </ul>
                     </div>
 
                     <!-- Services Column -->
                     <div class="col-12 col-md-4 mb-4">
-                        <h6 class="fw-bold" style="color: #F34213;">Services</h6>
+                        <h6 class="fw-bold" style="color: #F34213;">Sites</h6>
                         <ul class="list-unstyled">
                             <?php
-                                if(isset($_SESSION['username']) && isset($_SESSION['session_token']))
-                                {
-                                    echo '<li><a href="eventMaker.php" class="footer-link">Event maker</a></li>';
-                                    echo '<li><a href="profileMain.php" class="footer-link">Profile</a></li>';
-                                }
+                            if(isset($_SESSION['username']) && isset($_SESSION['session_token']))
+                            {
+                                echo '<li><a href="eventMaker.php" class="footer-link">Event maker</a></li>';
+                                echo '<li><a href="profileMain.php" class="footer-link">Profile</a></li>';
+                            }
                             ?>
-                            <li><a class="dropdown-item footer-link" href="../availableEvents.php">Available events</a></li>
+                            <li><a href="../availableEvents.php" class="footer-link">Available events</a></li>
                         </ul>
                     </div>
 
                     <!-- Legal Column -->
                     <div class="col-12 col-md-4 mb-4">
-                        <h6 class="fw-bold" style="color: #BC5D2E;">Legal</h6>
+                        <h6 class="fw-bold" style="color: #BC5D2E;">Other</h6>
                         <ul class="list-unstyled">
-                            <li><a href="/terms" class="footer-link">Terms of Service</a></li>
-                            <li><a href="/privacy-policy" class="footer-link">Privacy Policy</a></li>
-                            <li><a href="/billing-info" class="footer-link">Billing Information</a></li>
-                            <li><a href="/refund-policy" class="footer-link">Refund & Cancellation Policy</a></li>
-                            <li><a href="/cookie-consent" class="footer-link">Cookie Consent</a></li>
+                            <li><a href="../contact.php" class="footer-link">Contact</a></li>
+                            <li><a href="../faq.php" class="footer-link">FAQ</a></li>
                         </ul>
                     </div>
                 </div>
@@ -63,30 +65,30 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
 
         <!-- Download Buttons -->
         <div class="row text-center mt-4">
-		    <?php if ($detect->isiOS()): ?>
+            <?php if ($detect->isiOS()): ?>
                 <div class="col-12">
                     <a href="<?php echo $ios_link; ?>" class="btn btn-primary" style="background-color: #007AFF; border-color: #007AFF;">
                         <i class="fa fa-apple"></i> Download on the App Store
                     </a>
                 </div>
-		    <?php elseif ($detect->isAndroidOS()): ?>
+            <?php elseif ($detect->isAndroidOS()): ?>
                 <div class="col-12">
                     <a href="<?php echo $android_link; ?>" class="btn btn-success" style="background-color: #3DDC84; border-color: #3DDC84;">
                         <i class="fa fa-android"></i> Get it on Google Play
                     </a>
                 </div>
-		    <?php else: ?>
+            <?php else: ?>
                 <div class="col-12">
                     <p class="text-muted">Download our app on iOS or Android devices too!</p>
                 </div>
-		    <?php endif; ?>
+            <?php endif; ?>
         </div>
-        
+
         <!-- Divider and Bottom Section -->
         <hr class="my-4" style="border-color: #BBB8B2;">
         <div class="text-center">
             <img src="../../assets/pictures/logo.png" alt="Logo" style="max-width: 50px;" class="mb-2">
-            <p class="mb-0" style="color: #DE9151;">&copy; 2024 MammaMia Marcello Event Organizer - All rights reserved.</p>
+            <p class="mb-0" style="color: #DE9151;">&copy; 2025 MammaMia Marcello Event Organizer - All rights reserved.</p>
         </div>
     </div>
 </footer>
@@ -103,8 +105,5 @@ tokenVerify($dbHost, $dbName, $dbUser, $dbPass);
     }
     .footer-link:hover {
         color: #DE9151;
-    }
-    .footer-link:visited {
-        color: #BBB8B2;
     }
 </style>
