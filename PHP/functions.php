@@ -86,10 +86,14 @@ function registerUser( string $firstName, string $lastName, string $username, st
 		$stmt->bindParam(':reg_token', $registration_token);
 		$stmt->execute();
 
+		echo "<script>
+        	alert('Registration successful! Please verify your email to activate your account.');
+        	window.location.href = 'login.php';
+    	</script>";
+
 		// Verification email
 		sendVerificationEmail($username, $registration_token);
-
-    }
+	}
 	catch (PDOException $e)
 	{
 		redirectToRegister("Error: " . htmlspecialchars($e->getMessage(), ENT_QUOTES), $_POST);
@@ -106,7 +110,7 @@ function loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass): ar
         $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $stmt = $pdo->prepare("SELECT id_user, is_verified, is_banned, password FROM users WHERE username = :username");
+        $stmt = $pdo->prepare("SELECT id_user, is_verified, password FROM users WHERE username = :username");
         $stmt->bindParam(':username', $username);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -121,13 +125,6 @@ function loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass): ar
                 return [
                     'success' => false,
                     'message' => 'This username (email) is registered but not yet verified.'
-                ];
-            }
-
-            if ($result['is_banned'] == 1) {
-                return [
-                    'success' => false,
-                    'message' => 'This user has been banned. Please contact the administrators.'
                 ];
             }
 
@@ -172,6 +169,50 @@ function loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass): ar
     }
 }
 
+function loginAdmin($username, $password, $dbHost, $dbName, $dbUser, $dbPass): array
+{
+    try {
+        $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // Fetch admin data
+        $stmt = $pdo->prepare("SELECT id_admin, username, password FROM admins WHERE username = :username");
+        $stmt->bindParam(':username', $username);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$result) {
+            return [
+                'success' => false,
+                'message' => 'Admin username not found.'
+            ];
+        }
+
+        // Verify hashed password
+        if (password_verify($password, $result['password'])) {
+            return [
+                'success' => true,
+                'message' => 'Admin login successful!',
+                'admin_id' => $result['id_admin'],
+                'session_token' => $sessionToken
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Incorrect password.'
+            ];
+        }
+    } catch (PDOException $e) {
+        return [
+            'success' => false,
+            'message' => 'Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES)
+        ];
+    } finally {
+        $pdo = null;
+    }
+}
+
+
 function redirectToRegister($message, $formData = [])
 {
 	$_SESSION['error'] = $message;
@@ -202,20 +243,20 @@ function sendVerificationEmail($email, $token): void
 	try
 	{
 		// Gábor part
-        $mail->isSMTP();
-        $mail->Host = 'sandbox.smtp.mailtrap.io';
-        $mail->SMTPAuth = true;
-        $mail->Port = 2525;
-        $mail->Username = 'ddd5c19228d753';
-        $mail->Password = '138a3f6bfe0c20';
-
-		// Máté part
 		/*$mail->isSMTP();
 		$mail->Host = 'sandbox.smtp.mailtrap.io';
 		$mail->SMTPAuth = true;
 		$mail->Port = 2525;
+		$mail->Username = 'b9cb9fe9810051';
+		$mail->Password = '84d8a60019f0f2';*/
+
+		// Máté part
+		$mail->isSMTP();
+		$mail->Host = 'sandbox.smtp.mailtrap.io';
+		$mail->SMTPAuth = true;
+		$mail->Port = 2525;
 		$mail->Username = 'd4a04c8e5deb9e';
-		$mail->Password = 'bde0a6f4e281eb';*/
+		$mail->Password = 'bde0a6f4e281eb';
 
 		// Email sender and recipient
 		$mail->setFrom('mmmarcello@events.com', 'Marcello');
@@ -224,7 +265,7 @@ function sendVerificationEmail($email, $token): void
 		// Email content
 		$mail->isHTML(true);
 		$mail->Subject = 'Account Verification';
-		$verificationLink = "http://localhost/HWPProjektMARCELLO/PHP/verifyUser.php?token=$token";
+		$verificationLink = "http://localhost/index.php/PHP/verifyUser.php?token=$token";
 		$mail->Body = "<h1>Account Verification</h1>
                        <p>Click the link below to verify your account:</p>
                        <a href='$verificationLink'>Verify me!</a>
@@ -334,20 +375,20 @@ function send_password_reset_email($email, $token)
 	try
 	{
 		// Gábor part
-        $mail->isSMTP();
-        $mail->Host = 'sandbox.smtp.mailtrap.io';
-        $mail->SMTPAuth = true;
-        $mail->Port = 2525;
-        $mail->Username = 'ddd5c19228d753';
-        $mail->Password = '138a3f6bfe0c20';
-
-		// Máté part
 		/*$mail->isSMTP();
 		$mail->Host = 'sandbox.smtp.mailtrap.io';
 		$mail->SMTPAuth = true;
 		$mail->Port = 2525;
+		$mail->Username = 'b9cb9fe9810051';
+		$mail->Password = '84d8a60019f0f2';*/
+
+		// Máté part
+		$mail->isSMTP();
+		$mail->Host = 'sandbox.smtp.mailtrap.io';
+		$mail->SMTPAuth = true;
+		$mail->Port = 2525;
 		$mail->Username = 'd4a04c8e5deb9e';
-		$mail->Password = 'bde0a6f4e281eb';*/
+		$mail->Password = 'bde0a6f4e281eb';
 
 		$mail->setFrom('mmmreset.noreply@gmail.com', 'MammaMiaMarcello');
 		$mail->addAddress($email);

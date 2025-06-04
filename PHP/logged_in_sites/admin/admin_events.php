@@ -81,6 +81,7 @@ $events = $stmt->fetchAll();
                             <input type="hidden" name="id_event" value="<?php echo $event['id_event']; ?>">
                             <button type="submit" class="btn btn-danger action-btn" onclick="return confirm('Are you sure you want to delete this event?');">Delete</button>
                         </form>
+
                     </td>
                 </tr>
                 <?php endforeach; ?>

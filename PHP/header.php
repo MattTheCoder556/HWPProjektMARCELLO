@@ -39,11 +39,11 @@
 					</li>
 					<!-- FAQ -->
 					<li class="nav-item">
-						<a class="nav-link" href="faq.php">FAQ</a>
+						<a class="nav-link" href="/faq">FAQ</a>
 					</li>
 					<!-- Contact -->
 					<li class="nav-item">
-						<a class="nav-link" href="contact.php">Contact</a>
+						<a class="nav-link" href="/contact">Contact</a>
 					</li>
 					<?php
                     require_once "functions.php";
