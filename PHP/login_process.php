@@ -8,7 +8,7 @@ $baseURL2 = "/HWP_2024/HWPProjektMARCELLO/PHP/index.php"; //Mate url
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
-header('Content-Type: application/json');
+//header('Content-Type: application/json');
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -23,7 +23,13 @@ if ($_SERVER['CONTENT_TYPE'] === 'application/json') {
 }
 
 if (empty($username) || empty($password)) {
-    echo json_encode(['success' => false, 'message' => 'Both fields are required to login.']);
+    echo "
+        <script>
+            alert('Both fields are required to login!');
+            window.location.href = 'login.php';
+        </script>
+    ";
+//    echo json_encode(['success' => false, 'message' => '']);
     exit();
 }
 
@@ -56,15 +62,29 @@ try {
             // Browser request: Redirect to homepage
             session_start();
             $_SESSION['user_id'] = $userId;
-            header("Location: ".$baseURL2);
+            header("Location: ".$baseURL1);
         }
         exit();
-    } else {
-        echo json_encode(['success' => false, 'message' => $result['message'] ?? 'Invalid credentials.']);
+    }
+    else
+    {
+        echo "
+            <script>
+                alert(" . json_encode($result['message'] ?? 'Ismeretlen hiba.') . ");
+                window.location.href = 'login.php';
+            </script>
+";
+//        echo json_encode(['success' => false, 'message' => $result['message'] ?? 'Invalid credentials.']);
         exit();
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+    echo "
+        <script>
+            alert('An error occurred, please try again later.');
+            window.location.href = 'login.php';
+        </script>
+    ";
+//    echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
     exit();
 }
 

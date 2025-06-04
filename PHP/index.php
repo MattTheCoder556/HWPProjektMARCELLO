@@ -3,17 +3,15 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>MMM</title>
+    <title>MMM | Home</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' href='../assets/css/index.css'>
-    </head>
+</head>
 <body>
 
-<!-- Ajándék választási visszajelzés a főoldalon -->
-
 <?php include 'header.php'; ?>
-<?php
-if (isset($_SESSION['flash_error'])): ?>
+
+<?php if (isset($_SESSION['flash_error'])): ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 1%">
         <?= $_SESSION['flash_error'] ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -31,25 +29,28 @@ if (isset($_SESSION['flash_error'])): ?>
 
 <div class="main">
     <div>
-        <h1>Welcome to the website!</h1>
-        <h3>Where your dream wedding or fun weekend can come to life!</h3>
+        <h1 style="font-size: 3em">Welcome to MMM Events</h1>
+        <h3 style="font-weight: normal; margin-top: 20px">Elegance. Joy. Unforgettable Moments.</h3>
         <br><br>
         <p class="parag">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus tincidunt ultricies turpis vitae vestibulum. Aenean feugiat, augue faucibus eleifend euismod, tellus nisl vestibulum ex, a ullamcorper nulla magna a mi. Vestibulum dapibus et turpis sit amet pretium. Cras suscipit arcu eget nisl pretium varius. Nulla elit dui, pulvinar eget auctor maximus, consectetur pulvinar erat. Quisque rhoncus non sapien vitae dignissim. Donec id malesuada risus, sed volutpat nulla. Integer volutpat magna in mi imperdiet faucibus. Etiam eu vehicula felis. Integer ornare ex id erat lobortis rutrum. Nullam consectetur tristique placerat. Fusce iaculis, felis vitae fermentum efficitur, turpis elit facilisis augue, et dignissim arcu est sed risus.
-            Quisque elementum arcu eget imperdiet vulputate. Nam tempor consequat metus, sed cursus turpis hendrerit ac. Quisque vitae viverra dolor. Etiam pellentesque fermentum nisl sed consequat. Phasellus tincidunt nibh fermentum euismod sodales. Duis cursus elit et dictum aliquet. Maecenas sed odio ac erat rhoncus faucibus in in nibh. Nulla risus nibh, lacinia a auctor ut, sodales id nisl. Donec lacinia justo urna, vel dignissim tellus rutrum vel.
+            At MMM, we believe your event should be nothing short of extraordinary. Whether you dream of a fairytale celebration under the stars or an intimate rustic weekend retreat, we bring your vision to life. With years of experience, a network of elite vendors, and a passion for perfection, our team will orchestrate every detail with love and care. <br><br>
+            Discover how we turn dreams into reality — one beautiful moment at a time.
         </p>
     </div>
 </div>
+
 <div class="second">
-  <h1>About our company</h1>
-  <p>This is gonna be the example text hwre text is gonna go.</p>
-  <p>Testing testing one two three</p>
+    <h1>About Our Company</h1>
+    <p style="max-width: 800px; margin: 0 auto; line-height: 28px">
+        MMM was born from a desire to elevate life's most cherished events. From weddings and birthday party weekends to unique private gatherings, we craft unforgettable experiences. Our founders — passionate planners and designers — envisioned a brand that blends timeless elegance with modern creativity.
+    </p>
 </div>
+
 <div class="third">
     <?php include 'slideshow.php'; ?>
 </div>
-<?php
-include 'footer.php';
-?>
+
+<?php include 'footer.php'; ?>
+
 </body>
 </html>
