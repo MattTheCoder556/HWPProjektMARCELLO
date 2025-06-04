@@ -6,21 +6,21 @@ $baseURL1 = "/HWPProjektMARCELLO/PHP/index.php"; //Gabor URL
 $baseURL2 = "/HWP_2024/HWPProjektMARCELLO/PHP/index.php"; //Mate URL
 $baseURL2Admin = "/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/admin/admin_dashboard.php"; //Mate admin dashboard
 
-// Set headers
+// Headers for API access
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
-header('Content-Type: application/json');
+//sheader('Content-Type: application/json');
 
-// Debugging (optional)
+// Error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Detect if it's a JSON request
+// Detect request type
 $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
 $isJsonRequest = strpos($contentType, 'application/json') !== false;
 
-// Parse credentials
+// Get input
 if ($isJsonRequest) {
     $data = json_decode(file_get_contents('php://input'), true);
     $username = $data['username'] ?? '';
@@ -30,57 +30,67 @@ if ($isJsonRequest) {
     $password = $_POST['password'] ?? '';
 }
 
-// Validate input
+// Basic validation
 if (empty($username) || empty($password)) {
-    echo json_encode(['success' => false, 'message' => 'Both fields are required to login.']);
+    if ($isJsonRequest) {
+        echo json_encode(['success' => false, 'message' => 'Both fields are required to login.']);
+    } else {
+        showPopupAndRedirect('Both fields are required to login.', $baseURL2);
+    }
     exit();
 }
 
 try {
-    // Attempt regular user login
+    // Try user login
     $result = loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass);
 
     if ($result['success']) {
-        $userId = $result['user_id'];
-
         if ($isJsonRequest) {
-            echo json_encode([
-                'success' => true,
-                'userId' => $userId,
-                'message' => 'Login successful.'
-            ]);
+            echo json_encode(['success' => true, 'userId' => $result['user_id'], 'message' => 'Login successful.']);
         } else {
             session_start();
-            $_SESSION['user_id'] = $userId;
+            $_SESSION['user_id'] = $result['user_id'];
             header("Location: " . $baseURL2);
         }
         exit();
     }
 
-    // If user login failed, try admin login
+    // Try admin login
     $result = loginAdmin($username, $password, $dbHost, $dbName, $dbUser, $dbPass);
 
     if ($result['success']) {
-        $adminId = $result['admin_id'];
-
         if ($isJsonRequest) {
-            echo json_encode([
-                'success' => true,
-                'adminId' => $adminId,
-                'message' => 'Admin login successful.'
-            ]);
+            echo json_encode(['success' => true, 'adminId' => $result['admin_id'], 'message' => 'Admin login successful.']);
         } else {
             session_start();
-            $_SESSION['admin_id'] = $adminId;
+            $_SESSION['admin_id'] = $result['admin_id'];
             header("Location: " . $baseURL2Admin);
         }
         exit();
     }
 
     // If both failed
-    echo json_encode(['success' => false, 'message' => $result['message'] ?? 'Invalid credentials.']);
+    if ($isJsonRequest) {
+        echo json_encode(['success' => false, 'message' => $result['message'] ?? 'Invalid credentials.']);
+    } else {
+        showPopupAndRedirect($result['message'] ?? 'Incorrect username or password.', $baseURL2);
+    }
     exit();
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+    if ($isJsonRequest) {
+        echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+    } else {
+        showPopupAndRedirect('An error occurred: ' . $e->getMessage(), $baseURL2);
+    }
     exit();
+}
+
+
+// Helper function to show a JS alert and redirect (for browser use)
+function showPopupAndRedirect($message, $redirectURL)
+{
+    echo "<script>
+        alert(" . json_encode($message) . ");
+        window.location.href = '$redirectURL';
+    </script>";
 }
