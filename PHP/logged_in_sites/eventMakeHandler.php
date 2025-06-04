@@ -7,6 +7,8 @@ header('Content-Type: application/json');
 $response = ['success' => false];
 $errors = [];
 
+$baseURL = '/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/'
+
 // Simulate a session user for API — remove this if you're using sessions securely
 //session_start();
 $user = $_SESSION['username'] ?? null;
@@ -109,7 +111,7 @@ try {
 
     echo json_encode([
         'success' => true,
-        'message' => 'Event created successfully.',
+        'message' => 'Event created successfull.',
         'event_id' => $eventID,
         'image' => $imagePath
     ]);
@@ -120,5 +122,4 @@ try {
         'success' => false,
         'error' => 'Database error: ' . $e->getMessage()
     ]);
-    exit;
 }
