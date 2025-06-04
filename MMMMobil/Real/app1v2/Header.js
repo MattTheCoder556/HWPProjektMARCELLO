@@ -134,25 +134,6 @@ const Header = () => {
                 <Text style={styles.navLink}>Home</Text>
               </TouchableOpacity>
 
-              {/* Sites Dropdown */}
-              <TouchableOpacity style={styles.menuItem} onPress={toggleSitesDropdown}>
-                <Text style={styles.navLink}>Sites</Text>
-              </TouchableOpacity>
-
-              {isSitesOpen && (
-                <View style={styles.dropdown}>
-                  <TouchableOpacity style={styles.dropdownItem} onPress={AvailableEventsNavigate}>
-                    <Text style={styles.navLink}>Available Events</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.dropdownItem} onPress={PlanEventNavigate}>
-                    <Text style={styles.navLink}>Plan Your Event</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.dropdownItem} onPress={toggleMenu}>
-                    <Text style={styles.navLink}>Site 3</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-
               <TouchableOpacity style={styles.menuItem} onPress={toggleMenu}>
                 <Text style={styles.navLink}>FAQ</Text>
               </TouchableOpacity>

@@ -35,59 +35,60 @@ const AvailableEvents = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    console.log('backendIp:', backendIp);
+    if (!backendIp) return;
+
+    const tryFetchUserId = async () => {
+      try {
+        const username = await AsyncStorage.getItem('username');
+        const sessionToken = await AsyncStorage.getItem('session_token');
+
+        if (username && sessionToken) {
+          const apiUrl = `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserId?username=${username}&session_token=${sessionToken}`;
+          const response = await fetch(apiUrl);
+          const data = await response.json();
+
+          if (data.id_user) {
+            setUserId(data.id_user);
+          } else {
+            console.log('No user ID found, continuing as guest');
+            setUserId(null);
+          }
+        } else {
+          console.log('No session found, continuing as guest');
+          setUserId(null);
+        }
+      } catch (err) {
+        console.log('Failed to fetch user ID, continuing as guest:', err.message);
+        setUserId(null);
+      }
+    };
+
+    tryFetchUserId();
   }, [backendIp]);
 
   useEffect(() => {
     if (!backendIp) return;
 
-    const fetchUserId = async () => {
-      try {
-        const username = await AsyncStorage.getItem('username');
-        const sessionToken = await AsyncStorage.getItem('session_token');
-        console.log(username, sessionToken);
-
-        if (username && sessionToken) {
-          const apiUrl = `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserId?username=${username}&session_token=${sessionToken}`;
-          console.log('UserID API URL:', apiUrl);
-
-          const response = await fetch(apiUrl);
-          const data = await response.json();
-
-          console.log('UserID API response:', data);
-
-          if (data.id_user) {
-            setUserId(data.id_user);
-          } else {
-            setError('User ID not found in response.');
-          }
-        } else {
-          setError('User not logged in.');
-        }
-      } catch (err) {
-        setError('Failed to fetch user ID: ' + err.message);
-      }
-    };
-
-    fetchUserId();
-  }, [backendIp]);
-
-  useEffect(() => {
-    if (!backendIp || !userId) return;
-
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const url = `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/api/getEvents?user_id=${userId}${searchTerm ? `&search=${searchTerm}` : ''}`;
-        console.log('Events API URL:', url);
+        const userIdParam = userId ? `user_id=${userId}&` : '';
+        const searchParam = searchTerm ? `search=${searchTerm}` : '';
+        const url = `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/api/getEvents?${userIdParam}${searchParam}`;
 
         const response = await fetch(url);
         const data = await response.json();
 
-        console.log('Events API response:', data);
-
-        setEvents(data);
-        setError(null);
+        if (data.success && Array.isArray(data.events)) {
+          setEvents(data.events);
+          setError(null);
+        } else if (Array.isArray(data)) {
+          setEvents(data);
+          setError(null);
+        } else {
+          setEvents([]);
+          setError('No events found or invalid response.');
+        }
       } catch (err) {
         setError('Failed to fetch events: ' + err.message);
         setEvents([]);
@@ -108,10 +109,12 @@ const AvailableEvents = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <View style={styles.eventItem}>
       <Text style={styles.eventTitle}>{item.event_name}</Text>
-      <Image
-        source={{ uri: `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/${item.event_pic}` }}
-        style={styles.eventImage}
-      />
+      {item.event_pic ? (
+        <Image
+          source={{ uri: `http://${backendIp}/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/${item.event_pic}` }}
+          style={styles.eventImage}
+        />
+      ) : null}
       <Text>Type: {item.event_type}</Text>
       <Text>Description: {item.description}</Text>
       <Text>Start Date: {item.start_date}</Text>
@@ -142,6 +145,8 @@ const AvailableEvents = ({ navigation }) => {
         <Text>Loading...</Text>
       ) : error ? (
         <Text style={{ color: 'red' }}>{error}</Text>
+      ) : events.length === 0 ? (
+        <Text style={{ color: 'gray', marginTop: 20 }}>No events available.</Text>
       ) : (
         <FlatList
           data={events}
