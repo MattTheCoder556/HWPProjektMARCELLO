@@ -44,6 +44,10 @@ switch ($action) {
     case 'getEvent':
         getEvent($pdo);
         break;
+    
+    case 'getEventsM':
+        getEventsM($pdo);
+        break;
         
     case 'isUserSignedUp':
         isUserSignedUp($pdo);
@@ -112,6 +116,61 @@ function getUserId($pdo) {
     }
 }
 
+function getEventsM($pdo) {
+    // Ensure JSON response
+    header('Content-Type: application/json; charset=utf-8');
+
+    if (!isset($_GET['user_id'])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Missing 'user_id' parameter"]);
+        return;
+    }
+
+    $userId = $_GET['user_id'];
+    $searchTerm = isset($_GET['search']) ? '%' . $_GET['search'] . '%' : null;
+
+    try {
+        if ($searchTerm) {
+            $stmt = $pdo->prepare("
+                SELECT * FROM events 
+                WHERE public = 1 
+                AND end_date >= NOW() 
+                AND owner != :user_id 
+                AND (
+                    event_name LIKE :search 
+                    OR event_type LIKE :search 
+                    OR description LIKE :search 
+                    OR place LIKE :search
+                ) 
+                ORDER BY start_date DESC
+            ");
+            $stmt->execute([
+                ':user_id' => $userId,
+                ':search' => $searchTerm,
+            ]);
+        } else {
+            $stmt = $pdo->prepare("
+                SELECT * FROM events 
+                WHERE public = 1 
+                AND end_date >= NOW() 
+                AND owner != :user_id 
+                ORDER BY start_date DESC
+            ");
+            $stmt->execute([':user_id' => $userId]);
+        }
+
+        $eventsM = $stmt->fetchAll();
+
+        // ✅ Consistent response format
+        echo json_encode([
+            "success" => true,
+            "events" => $eventsM
+        ]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(["error" => "Failed to fetch events", "details" => $e->getMessage()]);
+    }
+}
 
 /**
  * Fetch events based on user ID and optional search term.

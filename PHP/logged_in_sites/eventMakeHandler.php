@@ -6,6 +6,7 @@ header('Content-Type: application/json');
 
 $response = ['success' => false];
 $errors = [];
+$baseURL = '/HWP_2024/HWPProjektMARCELLO/PHP/eventDetails.php?id=';
 
 // Simulate a session user for API — remove this if you're using sessions securely
 //session_start();
@@ -107,18 +108,20 @@ try {
 
     $eventID = $pdo->lastInsertId();
 
-    echo json_encode([
+    /*echo json_encode([
         'success' => true,
         'message' => 'Event created successfully.',
         'event_id' => $eventID,
         'image' => $imagePath
     ]);
-    exit;
+    exit;*/
+    header('Location: '.$baseURL.$eventID);
+
 
 } catch (PDOException $e) {
     echo json_encode([
         'success' => false,
         'error' => 'Database error: ' . $e->getMessage()
     ]);
-    exit;
+    //exit;
 }

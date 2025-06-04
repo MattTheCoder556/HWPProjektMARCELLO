@@ -7,7 +7,7 @@ use PHPMailer\PHPMailer\Exception;
 
 $messages = []; // status log
 try {
-    $pdo = new PDO("mysql:host=localhost;dbname=marcello_v2", "root", "");
+    $pdo = new PDO("mysql:host=localhost;dbname=marcello_test", "root", "");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     date_default_timezone_set('Europe/Belgrade');

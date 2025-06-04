@@ -169,6 +169,50 @@ function loginUser($username, $password, $dbHost, $dbName, $dbUser, $dbPass): ar
     }
 }
 
+function loginAdmin($username, $password, $dbHost, $dbName, $dbUser, $dbPass): array
+{
+    try {
+        $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // Fetch admin data
+        $stmt = $pdo->prepare("SELECT id_admin, username, password FROM admins WHERE username = :username");
+        $stmt->bindParam(':username', $username);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$result) {
+            return [
+                'success' => false,
+                'message' => 'Admin username not found.'
+            ];
+        }
+
+        // Verify hashed password
+        if (password_verify($password, $result['password'])) {
+            return [
+                'success' => true,
+                'message' => 'Admin login successful!',
+                'admin_id' => $result['id_admin'],
+                'session_token' => $sessionToken
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Incorrect password.'
+            ];
+        }
+    } catch (PDOException $e) {
+        return [
+            'success' => false,
+            'message' => 'Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES)
+        ];
+    } finally {
+        $pdo = null;
+    }
+}
+
+
 function redirectToRegister($message, $formData = [])
 {
 	$_SESSION['error'] = $message;
