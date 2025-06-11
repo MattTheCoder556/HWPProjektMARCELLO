@@ -1,0 +1,1325 @@
+{
+	"info": {
+		"_postman_id": "8fad092b-ed99-45cf-974c-4cba18a1e579",
+		"name": "MMM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39875717"
+	},
+	"item": [
+		{
+			"name": "getUserProfile GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://mmm.vts.su.ac.rs/PHP/login_process.php",
+					"protocol": "http",
+					"host": [
+						"mmm",
+						"vts",
+						"su",
+						"ac",
+						"rs"
+					],
+					"path": [
+						"PHP",
+						"login_process.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserProfile POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.165.218/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserProfile",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api",
+						"getUserProfile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserProfile PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.165.218/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserProfile",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api",
+						"getUserProfile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fetchEventsJS1 GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS1.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"fetchEventsJS1.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fetchEventsJS1 POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS1.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"fetchEventsJS1.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fetchEventsJS1 PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS1.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"fetchEventsJS1.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fetchEventsJS2 GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS2.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"fetchEventsJS2.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fetchEventsJS2 POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS2.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"fetchEventsJS2.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fetchEventsJS2 PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/fetchEventsJS2.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"fetchEventsJS2.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateProfile GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/updateProfile.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"updateProfile.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateProfile POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/updateProfile.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"updateProfile.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateProfile PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/updateProfile.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"updateProfile.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserId GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserId?username=${username}&session_token=${sessionToken}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api",
+						"getUserId"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "${username}"
+						},
+						{
+							"key": "session_token",
+							"value": "${sessionToken}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserId POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserId?username=${username}&session_token=${sessionToken}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api",
+						"getUserId"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "${username}"
+						},
+						{
+							"key": "session_token",
+							"value": "${sessionToken}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserId PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api/getUserId?username=${username}&session_token=${sessionToken}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api",
+						"getUserId"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "${username}"
+						},
+						{
+							"key": "session_token",
+							"value": "${sessionToken}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getEvents GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api/getEvents?${userIdParam}${searchParam}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api",
+						"getEvents"
+					],
+					"query": [
+						{
+							"key": "${userIdParam}${searchParam}",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getEvents POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api/getEvents?${userIdParam}${searchParam}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api",
+						"getEvents"
+					],
+					"query": [
+						{
+							"key": "${userIdParam}${searchParam}",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getEvents PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api/getEvents?${userIdParam}${searchParam}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api",
+						"getEvents"
+					],
+					"query": [
+						{
+							"key": "${userIdParam}${searchParam}",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateEvent GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=updateEvent",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api.php"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "updateEvent"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateEvent POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=updateEvent",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api.php"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "updateEvent"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateEvent PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=updateEvent",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api.php"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "updateEvent"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signupForEvent GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=signupForEvent",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api.php"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "signupForEvent"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signupForEvent POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=signupForEvent",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api.php"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "signupForEvent"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signupForEvent PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=signupForEvent",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api.php"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "signupForEvent"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signoffFromEvent GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=signoffFromEvent",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api.php"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "signoffFromEvent"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signoffFromEvent POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=signoffFromEvent",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api.php"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "signoffFromEvent"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signoffFromEvent PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/api.php?action=signoffFromEvent",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"api.php"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "signoffFromEvent"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login_process GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/login_process.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"login_process.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login_process POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/login_process.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"login_process.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login_process PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/login_process.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"login_process.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "eventMakeHandler GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/eventMakeHandler.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"eventMakeHandler.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "eventMakeHandler POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/eventMakeHandler.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"eventMakeHandler.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "eventMakeHandler PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/logged_in_sites/eventMakeHandler.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"logged_in_sites",
+						"eventMakeHandler.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register_process GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/register_process.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"register_process.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register_process POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/register_process.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"register_process.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register_process PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/HWP_2024/HWPProjektMARCELLO/PHP/register_process.php",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"HWP_2024",
+						"HWPProjektMARCELLO",
+						"PHP",
+						"register_process.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserEvent GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/api/getUserEvents?user_id=${userId}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"getUserEvents"
+					],
+					"query": [
+						{
+							"key": "user_id",
+							"value": "${userId}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserEvent POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/api/getUserEvents?user_id=${userId}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"getUserEvents"
+					],
+					"query": [
+						{
+							"key": "user_id",
+							"value": "${userId}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserEvent PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://192.168.165.218:8081/api/getUserEvents?user_id=${userId}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"165",
+						"218"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"getUserEvents"
+					],
+					"query": [
+						{
+							"key": "user_id",
+							"value": "${userId}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
