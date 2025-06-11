@@ -1,0 +1,12 @@
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Allow direct access to existing files and directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# API requests (e.g., /api/getInvites → api.php?action=getInvites)
+RewriteRule ^api/([a-zA-Z0-9_-]+)$ api.php?action=$1 [QSA,L]
+
+# Keep other PHP pages working (e.g., /profileMain.php)
+RewriteRule ^([a-zA-Z0-9_-]+)\.php$ $1.php [L]
